@@ -45,7 +45,7 @@ static const char copyright[] =
 static char sccsid[] = "@(#)uucpd.c	8.1 (Berkeley) 6/4/93";
 #endif
 static const char rcsid[] =
-  "$FreeBSD: src/libexec/uucpd/uucpd.c,v 1.22 2000/05/14 18:01:05 ume Exp $";
+  "$FreeBSD: src/libexec/uucpd/uucpd.c,v 1.23 2001/07/09 09:23:42 brian Exp $";
 #endif /* not lint */
 
 /*
@@ -204,7 +204,7 @@ int readline(char start[], int num, int passw)
 	register int n = num;
 
 	while (n-- > 0) {
-		if (read(0, &c, 1) <= 0)
+		if (read(STDIN_FILENO, &c, 1) <= 0)
 			return(-1);
 		c &= 0177;
 		if (c == '\n' || c == '\r' || c == '\0') {
