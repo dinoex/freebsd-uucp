@@ -4,7 +4,7 @@
 BINDIR=         $(libxdir)
 BINOWN=		$(owner)
 BINGRP=         $(group)
-BINMODE=        4550
+BINMODE=        6550
 
 PROG=		uuxqt
 SRCS=		uuxqt.c util.c log.c copy.c
