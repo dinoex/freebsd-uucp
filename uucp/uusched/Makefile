@@ -1,5 +1,5 @@
 # Makefile for uusched
-# $Id$
+# $FreeBSD$
 
 BINDIR=		$(bindir)
 CLEANFILES+=	$(ONESHPROG)

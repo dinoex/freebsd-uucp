@@ -1,5 +1,5 @@
 # Makefile for uulog
-# $Id$
+# $FreeBSD$
 
 BINDIR=		$(bindir)
 
