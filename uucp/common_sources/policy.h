@@ -566,7 +566,7 @@
    exist when a new message is written out, it will be created.
    Setting CLOSE_LOGFILES to 1 will obviously require slightly more
    processing time.  */
-#define CLOSE_LOGFILES 0
+#define CLOSE_LOGFILES 1
 
 /* The name of the default spool directory.  If HAVE_TAYLOR_CONFIG is
    set to 1, this may be overridden by the ``spool'' command in the
