@@ -19,6 +19,7 @@ BIN=    100.clean-disks \
 	430.status-rwho \
 	440.status-mailq \
 	450.status-security \
+	460.status-mail-rejects \
 	999.local
 
 .include <bsd.prog.mk>
