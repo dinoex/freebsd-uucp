@@ -132,7 +132,6 @@ char user[64];
 char passwd[64];
 
 extern char **environ;
-extern void logwtmp(char *line, char *name, char *host);
 
 struct passwd *pw;
 char remotehost[MAXHOSTNAMELEN];
