@@ -84,15 +84,9 @@
  *        get knowledge of
  */
 /* $Log$
-/* Revision 1.3.4.2  1996/05/29 22:31:48  jkh
-/* Merge from HEAD, except:
-/*
-/* 	Clients that used gnumalloc still do, despite the merge.  We're not
-/* 	bringing phkmalloc over.
-/*
-/* 	Thread stuff left out.
-/*
-/* 	PCCARD support left out.
+/* Revision 1.3.4.3  1996/06/05 02:39:02  jkh
+/* This 3rd mega-commit should hopefully bring us back to where we were.
+/* I can get it to `make world' succesfully, anyway!
 /*
  * Revision 1.3.4.1  1995/09/01  06:01:59  davidg
  * Brought in changes from main branch: updated to UUCP 1.06.1
