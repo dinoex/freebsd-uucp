@@ -1,8 +1,6 @@
 #	$Id$
 
 BINDIR=	/etc/periodic/${.CURDIR:T}
-BINOWN=	root
-BINGRP=	wheel
 NOOBJ=
 
 beforeinstall:
