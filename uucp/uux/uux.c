@@ -506,8 +506,9 @@ main (argc, argv)
 	{
 	  if (iuuconf != UUCONF_NOT_FOUND)
 	    ulog_uuconf (LOG_FATAL, puuconf, iuuconf);
-	  if (! funknown_system (puuconf, zsys, &sxqtsys))
+	  if (funknown_system (puuconf, zsys, &sxqtsys)) {
 	    ulog (LOG_FATAL, "%s: System not found", zsys);
+	  }
 	}
     }
 
@@ -866,7 +867,7 @@ main (argc, argv)
 	    {
 	      if (iuuconf != UUCONF_NOT_FOUND)
 		ulog_uuconf (LOG_FATAL, puuconf, iuuconf);
-	      if (! funknown_system (puuconf, zsystem, &sfromsys))
+	      if (funknown_system (puuconf, zsystem, &sfromsys))
 		ulog (LOG_FATAL, "%s: System not found", zsystem);
 	    }
 
