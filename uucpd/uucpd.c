@@ -122,8 +122,8 @@ void badlogin(char *name, struct sockaddr_in *sin)
 {
 	char remotehost[MAXHOSTNAMELEN];
 
-	realhostname(remotehost, sizeof remotehost - 1, &sin->sin_addr);
-	remotehost[sizeof remotehost - 1] = '\0';
+	realhostname(remotehost, sizeof(remotehost) - 1, &sin->sin_addr);
+	remotehost[sizeof(remotehost) - 1] = '\0';
 
 	syslog(LOG_NOTICE, "LOGIN FAILURE FROM %s", remotehost);
 	syslog(LOG_AUTHPRIV|LOG_NOTICE,
