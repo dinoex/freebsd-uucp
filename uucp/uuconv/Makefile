@@ -11,6 +11,4 @@ CFLAGS+=	-I$(.CURDIR)/../common_sources\
 		-I$(.CURDIR)/../libuuconf\
 		-DVERSION=\"$(VERSION)\"
 
-NOMAN=		noman
-
 .include <bsd.prog.mk>
