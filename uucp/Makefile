@@ -2,8 +2,8 @@
 # $Id$
 
 SUBDIR=		libunix libuucp libuuconf \
-		cu sample \
-		uuchk uucico uuconv uucp uulog uuname uupick uusched \
+		doc sample \
+		cu uuchk uucico uuconv uucp uulog uuname uupick uusched \
 		uustat uuto uux uuxqt
 
 .include <bsd.subdir.mk>
