@@ -3,6 +3,8 @@
 
 PROG=	uucpd
 MAN=	uucpd.8
+BINDIR=	${PREFIX}/libexec
 LDADD=  -lcrypt -lutil
 DPADD=  ${LIBCRYPT} ${LIBUTIL}
+
 .include <bsd.prog.mk>
