@@ -227,7 +227,7 @@ main (argc, argv)
 	  break;
 
 	case 'I':
-	  /* Configuration file name.  */ 
+	  /* Configuration file name.  */
 	  if (fsysdep_other_config (optarg))
 	    zconfig = optarg;
 	  break;
@@ -1170,7 +1170,7 @@ main (argc, argv)
       s.cbytes = -1;
       s.zcmd = zfullcmd;
       s.ipos = 0;
-      
+
       ++cXcmds;
       pasXcmds = (struct scmd *) xrealloc ((pointer) pasXcmds,
 					   cXcmds * sizeof (struct scmd));

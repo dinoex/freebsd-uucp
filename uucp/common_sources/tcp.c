@@ -308,7 +308,7 @@ ftcp_open (qconn, ibaud, fwait)
 	      ulog (LOG_ERROR, "fork: %s", strerror (errno));
 	      _exit (EXIT_FAILURE);
 	    }
-	      
+
 	  if (ipid != 0)
 	    _exit (EXIT_SUCCESS);
 

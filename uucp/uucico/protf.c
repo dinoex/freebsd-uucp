@@ -247,7 +247,7 @@ ffsenddata (qdaemon, zdata, cdata, ilocal, iremote, ipos)
   char ab[CFBUFSIZE * 2];
   char *ze;
   register unsigned int itmpchk;
-      
+
   cFsent_data += cdata;
 
   ze = ab;
@@ -759,7 +759,7 @@ ffawait_cksum (qtrans, qdaemon, zdata, cdata)
       xfree (qtrans->pinfo);
       return FALSE;
     }
-	  
+
   icheck = (unsigned int) strtol ((char *) zdata, (char **) NULL, 16);
 
   if (icheck != (iFcheck & 0xffff))

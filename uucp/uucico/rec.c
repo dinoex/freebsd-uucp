@@ -123,7 +123,7 @@ urrec_free (qtrans)
     }
 
   utransfree (qtrans);
-}       
+}
 
 /* Set up a request for a file from the remote system.  This may be
    called before the remote system has been called.
@@ -569,7 +569,7 @@ fremote_send_file_init (qdaemon, qcmd, iremote)
 	    qcmd->zfrom);
       return fremote_send_fail (qdaemon, qcmd, FAILURE_PERM, iremote);
     }
-		  
+
   fspool = fspool_file (qcmd->zto);
 
   /* We don't accept remote command files.  An execution request may
@@ -897,7 +897,7 @@ fremote_send_fail_send (qtrans, qdaemon)
       ab[2] = '\0';
       break;
     }
-  
+
   ab[3] = '\0';
 
   qinfo->fsent = TRUE;
@@ -1063,7 +1063,7 @@ frec_file_end (qtrans, qdaemon, zdata, cdata)
 	    imode = 0666;
 	  (void) fsysdep_change_mode (qinfo->zfile, imode);
 	}
-  
+
       zerr = NULL;
     }
 

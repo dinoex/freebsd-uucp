@@ -531,7 +531,7 @@ _uuconf_iv2_system_internal (qglobal, zsystem, qsys)
 		    qsys->uuconf_pzpath = pznew;
 		    zline = NULL;
 		    cline = 0;
-		  }      
+		  }
 
 		if (getline (&zline, &cline, e) < 0)
 		  {

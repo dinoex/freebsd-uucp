@@ -234,7 +234,7 @@ fconn_dial (qconn, puuconf, qsys, zphone, qdialer, ptdialerfound)
     qdialer = &sdialer;
   if (ptdialerfound == NULL)
     ptdialerfound = &tfound;
-      
+
   qdialer->uuconf_zname = NULL;
   *ptdialerfound = DIALERFOUND_FALSE;
 

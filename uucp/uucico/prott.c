@@ -96,7 +96,7 @@ ftstart (qdaemon, pzlog)
 /* Stop the protocol.  */
 
 /*ARGSUSED*/
-boolean 
+boolean
 ftshutdown (qdaemon)
      struct sdaemon *qdaemon;
 {
@@ -269,7 +269,7 @@ ftprocess_data (qdaemon, pfexit, pcneed)
 	return FALSE;
 
       iPrecstart = (iPrecstart + clen) % CRECBUFLEN;
-			   
+
       if (*pfexit)
 	return TRUE;
 

@@ -110,7 +110,7 @@ usfree_send (qtrans)
     }
 
   utransfree (qtrans);
-}      
+}
 
 /* Set up a local request to send a file.  This may be called before
    we have even tried to call the remote system.
@@ -263,7 +263,7 @@ flocal_send_file_init (qdaemon, qcmd)
 	  else
 	    qdaemon->cmax_ever = c2;
 	}
-		      
+
       if (qdaemon->cmax_ever != -1
 	  && qdaemon->cmax_ever < qcmd->cbytes)
 	return flocal_send_fail ((struct stransfer *) NULL, qcmd, qdaemon,
@@ -1056,7 +1056,7 @@ fremote_rec_fail_send (qtrans, qdaemon)
       z = "RN";
       break;
     }
-  
+
   xfree (qtrans->pinfo);
   utransfree (qtrans);
   fret = (*qdaemon->qproto->pfsendcmd) (qdaemon, z, ilocal, iremote);

@@ -287,7 +287,7 @@ zsfind_file (zsimple, zsystem, bgrade)
       {
 	size_t c;
 	boolean ftruncated;
-      
+
 	/* D.LOCAL in D.LOCAL/, others in D./.  If BSD43, D.LOCALX in
 	   D.LOCALX/.  */
 	ftruncated = TRUE;
@@ -336,7 +336,7 @@ zsfind_file (zsimple, zsystem, bgrade)
 	char *zfree;
 	const char *zdir;
 	char *zret;
-      
+
 	/* D.LOCALX in D.LOCALX/, D.LOCAL in D.LOCAL/, others in D./.  */
 	ftruncated = TRUE;
 	if (strncmp (zsimple + 2, zSlocalname, strlen (zSlocalname)) == 0)
@@ -380,7 +380,7 @@ zsfind_file (zsimple, zsystem, bgrade)
 	    zfree = NULL;
 	    zdir = "D.";
 	  }
-      
+
 	zret = zsappend4 ("sys",
 			  (fsultrix_has_spool (zsystem)
 			   ? zsystem

@@ -220,7 +220,7 @@ zsysdep_get_xqt (pzsystem, pferr)
 #endif
 	  return zret;
 	}
-	    
+
       /* If we've reached the end of the directory, then if we are
 	 using subdirectories loop around to read the next one,
 	 otherwise we are finished.  */

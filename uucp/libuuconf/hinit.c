@@ -165,7 +165,7 @@ uuconf_hdb_init (ppglobal, zprogram)
 	    {
 	      char ***ppz;
 	      int cfiles, ifile;
-	      
+
 	      if (strncmp (pzargs[i], "systems=", sizeof "systems=" - 1)
 		  == 0)
 		{

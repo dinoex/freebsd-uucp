@@ -157,7 +157,7 @@ iddtr_toggle (pglobal, argc, argv, pvar, pinfo)
    string into a trivial chat script.  */
 
 /*ARGSUSED*/
-static int 
+static int
 idcomplete (pglobal, argc, argv, pvar, pinfo)
      pointer pglobal;
      int argc;
@@ -192,7 +192,7 @@ idproto_param (pglobal, argc, argv, pvar, pinfo)
   struct uuconf_proto_param **pqparam = (struct uuconf_proto_param **) pvar;
   struct uuconf_dialer *qdialer = (struct uuconf_dialer *) pinfo;
 
-  return _uuconf_iadd_proto_param (qglobal, argc - 1, argv + 1, pqparam, 
+  return _uuconf_iadd_proto_param (qglobal, argc - 1, argv + 1, pqparam,
 				   qdialer->uuconf_palloc);
 }
 

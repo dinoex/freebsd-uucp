@@ -65,7 +65,7 @@ uuconf_hdb_dialer_names (pglobal, ppzdialers)
 	  iret = UUCONF_FOPEN_FAILED | UUCONF_ERROR_ERRNO;
 	  break;
 	}
-      
+
       qglobal->ilineno = 0;
 
       while (_uuconf_getline (qglobal, &zline, &cline, e) > 0)

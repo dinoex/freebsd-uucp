@@ -263,9 +263,9 @@ fsysdep_execute (qsys, zuser, pazargs, zfullcmd, zinput, zoutput,
 	{
 	  ulog (LOG_ERROR, "fcntl (FD_CLOEXEC): %s", strerror (errno));
 	  ferr = TRUE;
-	}	
+	}
     }
-  
+
   if (! ferr && zoutput != NULL)
     {
       aidescs[1] = creat ((char *) zoutput, IPRIVATE_FILE_MODE);
@@ -280,7 +280,7 @@ fsysdep_execute (qsys, zuser, pazargs, zfullcmd, zinput, zoutput,
 	{
 	  ulog (LOG_ERROR, "fcntl (FD_CLOEXEC): %s", strerror (errno));
 	  ferr = TRUE;
-	}	
+	}
     }
 
   if (! ferr)
@@ -312,7 +312,7 @@ fsysdep_execute (qsys, zuser, pazargs, zfullcmd, zinput, zoutput,
 	{
 	  ulog (LOG_ERROR, "fcntl (FD_CLOEXEC): %s", strerror (errno));
 	  ferr = TRUE;
-	}	
+	}
     }
 
   if (iseq == 0)
@@ -658,7 +658,7 @@ fsysdep_move_uuxqt_files (cfiles, pzfrom, pzto, fto, iseq, pzinput)
       if (! fto)
 	{
 	  const char *ztemp;
-	  
+
 	  ztemp = zfrom;
 	  zfrom = zto;
 	  zto = ztemp;

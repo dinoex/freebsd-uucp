@@ -451,7 +451,7 @@ _uuconf_isystem_basic_default (qglobal, q)
 	      qglobal->ierrno = errno;
 	      return UUCONF_MALLOC_FAILED | UUCONF_ERROR_ERRNO;
 	    }
-		  
+
 	  memcpy ((pointer) zdup, (pointer) CMDPATH, sizeof CMDPATH);
 	  pz = NULL;
 	  csplit = 0;

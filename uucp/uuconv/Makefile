@@ -4,7 +4,7 @@
 BINDIR=		$(sbindir)
 
 PROG=		uuconv
-SRCS=		uuconv.c 
+SRCS=		uuconv.c
 LDADD+=		$(LIBUNIX) $(LIBUUCONF) $(LIBUUCP)
 DPADD+=		$(LIBUNIX) $(LIBUUCONF) $(LIBUUCP)
 CFLAGS+=	-I$(.CURDIR)/../common_sources\

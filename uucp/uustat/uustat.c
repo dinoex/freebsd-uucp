@@ -885,7 +885,7 @@ fsworkfiles (puuconf, icmd, csystems, pazsystems, fnotsystems, cusers,
 	  ulog_uuconf (LOG_ERROR, puuconf, iuuconf);
 	  return FALSE;
 	}
-      
+
       for (pz = pznames; *pz != NULL; pz++)
 	{
 	  if (csystems > 0)
@@ -1281,7 +1281,7 @@ fsworkfile_show (puuconf, icmd, qsys, qcmd, itime, ccommands, pazcommands,
 	  else if ((icmd & JOB_KILL) != 0
 		   || (icmd & JOB_REJUVENATE) != 0)
 	    fkill_or_rejuv = TRUE;
-	      
+
 	  if (fkill_or_rejuv
 	      && (qlist->s.zuser == NULL
 		  || strcmp (zsysdep_login_name (), qlist->s.zuser) != 0)
@@ -1466,7 +1466,7 @@ fsexecutions (puuconf, icmd, csystems, pazsystems, fnotsystems, cusers,
 	{
 	  ubuffree (zfile);
 	  ubuffree (zsystem);
-	  continue;      
+	  continue;
 	}
 
       if (cusers == 0)
@@ -2286,7 +2286,7 @@ fsquery_show (qsys, cwork, ifirstwork, qxqt, inow, zlocalname,
 
   usysdep_localtime (sstat.ilast, &stime);
 
-  printf (" %02d-%02d %02d:%02d ", 
+  printf (" %02d-%02d %02d:%02d ",
 	  stime.tm_mon + 1,stime.tm_mday, stime.tm_hour, stime.tm_min);
 
   printf ("%s\n", azStatus[(int) sstat.ttype]);

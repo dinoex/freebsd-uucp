@@ -61,7 +61,7 @@ uuconf_callout (pglobal, qsys, pzlog, pzpass)
       || (qsys->uuconf_zcall_password != NULL
 	  && strcmp (qsys->uuconf_zcall_password, "*") == 0))
     return UUCONF_NOT_FOUND;
-      
+
   if (qsys->uuconf_zcall_login != NULL)
     {
       *pzlog = strdup (qsys->uuconf_zcall_login);

@@ -141,7 +141,7 @@ uuconf_cmd_args (pglobal, cargs, pzargs, qtab, pinfo, pfiunknown, iflags,
 	{
 	  char ***ppz = (char ***) q->uuconf_pvar;
 	  int iret;
-	  
+
 	  *ppz = NULL;
 	  iret = _uuconf_iadd_string (qglobal, (char *) NULL, FALSE, FALSE,
 				      ppz, pblock);

@@ -219,7 +219,7 @@ zsysdep_uupick_local_file (zfile, pfbadname)
   if (zfile[0] != '~'
       || (zfile[1] != '/' && zfile[1] != '\0'))
     return zsysdep_local_file_cwd (zfile, (const char *) NULL, pfbadname);
-  
+
   q = getpwuid (getuid ());
   if (q == NULL)
     {

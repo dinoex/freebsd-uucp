@@ -411,8 +411,8 @@ utransfree (q)
   ubuffree ((char *) q->s.ztemp);
   ubuffree ((char *) q->s.znotify);
   ubuffree ((char *) q->s.zcmd);
-  
-  utchanfree (q);    
+
+  utchanfree (q);
   if (q->iremote > 0)
     {
       aqTremote[q->iremote] = NULL;
@@ -488,9 +488,9 @@ ftcharge (qdaemon, qtrans, fsend, fforce)
 	{
 	  qother->isecs = inextsecs;
 	  qother->imicros = inextmicros;
-	}	  
+	}
     }
-  
+
   qcharge->qtrans = qtrans;
   qcharge->isecs = inextsecs;
   qcharge->imicros = inextmicros;
@@ -612,7 +612,7 @@ fqueue (qdaemon, pfany)
 	  break;
 #endif
 	}
-    }	  
+    }
 
   if (pfany != NULL)
     *pfany = qTlocal != NULL;
@@ -926,7 +926,7 @@ floop (qdaemon)
    TRUE if we just receive data for a file.  This routine never sets
    *pfexit to FALSE.  */
 
-boolean 
+boolean
 fgot_data (qdaemon, zfirst, cfirst, zsecond, csecond, ilocal, iremote, ipos,
 	   fallacked, pfexit)
      struct sdaemon *qdaemon;

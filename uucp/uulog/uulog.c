@@ -350,7 +350,7 @@ main (argc, argv)
 	      zluser = znext;
 	      cluser = strcspn (znext, " \t");
 #endif
-      
+
 	      /* Skip the first field.  */
 	      znext += strcspn (znext, " \t");
 	      znext += strspn (znext, " \t");

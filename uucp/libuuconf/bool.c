@@ -61,4 +61,4 @@ _uuconf_iboolean (qglobal, zval, pi)
     }
 
   return UUCONF_CMDTABRET_CONTINUE;
-}		    
+}

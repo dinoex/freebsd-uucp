@@ -249,7 +249,7 @@ _uuconf_iport_cmd (qglobal, argc, argv, qport)
 
 	  if (i >= CPORT_TYPES)
 	    return UUCONF_SYNTAX_ERROR;
-	  
+
 	  ttype = (enum uuconf_porttype) i;
 	}
 

@@ -104,7 +104,7 @@ fparse_cmd (zcmd, qcmd)
   if (z == NULL)
     return FALSE;
   qcmd->zto = z;
-      
+
   z = strtok ((char *) NULL, " \t\n");
   if (z == NULL)
     return FALSE;
@@ -155,7 +155,7 @@ fparse_cmd (zcmd, qcmd)
 	}
 
       return TRUE;
-    }      
+    }
 
   z = strtok ((char *) NULL, " \t\n");
   if (z == NULL)
@@ -203,7 +203,7 @@ fparse_cmd (zcmd, qcmd)
 	}
       else if (qcmd->bcmd == 'E')
 	return FALSE;
-      
+
       if (z != NULL)
 	{
 	  z = strtok ((char *) NULL, "");

@@ -46,7 +46,7 @@ uuconf_taylor_dialer_names (pglobal, ppzdialers)
   struct uuconf_cmdtab as[2];
   char **pz;
   int iret;
-  
+
   *ppzdialers = NULL;
 
   as[0].uuconf_zcmd = "dialer";

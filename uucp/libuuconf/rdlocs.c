@@ -174,7 +174,7 @@ _uuconf_iread_locations (qglobal)
       qglobal->qprocess->qsyslocs = si.qlocs;
       qglobal->qprocess->qvalidate = si.qvals;
       qglobal->qprocess->fread_syslocs = TRUE;
-    }	
+    }
 
   return iret;
 }

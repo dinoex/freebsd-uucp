@@ -177,7 +177,7 @@ uuconf_error_string (pglobal, ierr, zbuf, cbuf)
 	  --cbuf;
 	}
     }
-      
+
   if (cbuf > 0 && cfile > 0)
     {
       *zbuf++ = ' ';

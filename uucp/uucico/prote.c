@@ -97,7 +97,7 @@ festart (qdaemon, pzlog)
 /* Stop the protocol.  */
 
 /*ARGSUSED*/
-boolean 
+boolean
 feshutdown (qdaemon)
      struct sdaemon *qdaemon;
 {

@@ -133,7 +133,7 @@ uuconf_hdb_dialer_info (pglobal, zname, qdialer)
 		  bnext = *zsubs;
 		  while (bnext != '\0')
 		    {
-		      if (bnext == '=') 
+		      if (bnext == '=')
 			qdialer->uuconf_zdialtone = zsubs + 1;
 		      else if (bnext == '-')
 			qdialer->uuconf_zpause = zsubs + 1;

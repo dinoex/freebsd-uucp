@@ -926,7 +926,7 @@ fcsend (qconn, puuconf, z, qsys, qdial, zphone, ftranslate, fstrip)
 	  break;
 #endif
 	}
-      
+
       if (fsend)
 	{
 	  fquote = fcsend_debug (fquote, (size_t) 1, &bsend);
@@ -1190,7 +1190,7 @@ fcprogram (qconn, puuconf, pzprogram, qsys, qdial, zphone, zport, ibaud)
 	  *pzarg = zbufcpy (*pz);
 	  continue;
 	}
-      
+
       *pzarg = NULL;
       zto = NULL;
       calc = 0;

@@ -343,7 +343,7 @@ _uuconf_ihdb_system_internal (qglobal, zsystem, qsys)
 	  if (iret != UUCONF_SUCCESS)
 	    break;
 	}
-  
+
       (void) fclose (e);
 
       if (iret != UUCONF_SUCCESS)

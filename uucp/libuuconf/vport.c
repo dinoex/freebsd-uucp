@@ -100,9 +100,9 @@ uuconf_v2_find_port (pglobal, zname, ibaud, ihighbaud, pifn, pinfo, qport)
 	}
 
       /* An entry in L-devices is
-	 
+
 	 type device dial-device baud dialer
-	 
+
 	 The type (normally "ACU") is treated as the name.  */
 
       /* If there aren't enough entries, ignore the line; this

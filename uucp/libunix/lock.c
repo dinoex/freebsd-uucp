@@ -620,7 +620,7 @@ fsqnx_stale (ipid, inme, inid, pferr)
       /* Use the local pid of the local process manager. */
       ivid = PROC_PID;
     }
-        
+
   /* Request the process information. */
   ifound_pid = qnx_psinfo (ivid /* process manager handling request */,
 			   ipid /* get info on this process */,
@@ -636,7 +636,7 @@ fsqnx_stale (ipid, inme, inid, pferr)
 	    strerror (errno));
     errno = isaved_errno;
   }
-          
+
   /* If the returned pid matches then the process still holds the lock. */
   if ((ifound_pid == ipid) && (spsdata.pid == ipid))
     return FALSE;
