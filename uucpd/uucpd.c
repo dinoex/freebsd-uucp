@@ -164,7 +164,7 @@ void doit(struct sockaddr_in *sinp)
 	 * 4. Password is incorrect
 	 */
 	if (pw != NULL && strcmp(pw->pw_shell, _PATH_UUCICO) == 0 &&
-	    pw->pw_expire && time(NULL) >= pw->pw_expire)
+	    (!pw->pw_expire || time(NULL) >= pw->pw_expire))
 		pwdok = 1;
 	/* always ask for passwords to deter account guessing */
 	if (!pwdok || (pw->pw_passwd && *pw->pw_passwd != '\0')) {
