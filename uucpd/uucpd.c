@@ -45,7 +45,7 @@ static const char copyright[] =
 static char sccsid[] = "@(#)uucpd.c	8.1 (Berkeley) 6/4/93";
 #endif
 static const char rcsid[] =
-  "$FreeBSD$";
+  "$FreeBSD: src/libexec/uucpd/uucpd.c,v 1.20 1999/08/28 00:10:28 peter Exp $";
 #endif /* not lint */
 
 /*
@@ -168,7 +168,7 @@ void doit(struct sockaddr_in *sinp)
 		printf("Password: "); fflush(stdout);
 		errno = 0;
 		if (readline(passwd, sizeof passwd, 1) < 0) {
-			syslog(LOG_WARNING, "passwd read: %m");
+			syslog(LOG_WARNING, "passwd for '%s' read: %m", user);
 			_exit(1);
 		}
 		if (pwdok) {
