@@ -1,10 +1,11 @@
-# $FreeBSD$
+# $FreeBSD: src/etc/periodic/daily/Makefile,v 1.3 1999/08/27 23:24:05 peter Exp $
 
 BIN=    100.clean-disks \
 	110.clean-tmps \
 	120.clean-preserve \
 	130.clean-msgs \
 	140.clean-rwho \
+	150.clean-hoststat \
 	200.backup-passwd \
 	210.backup-aliases \
 	220.backup-distfile \
