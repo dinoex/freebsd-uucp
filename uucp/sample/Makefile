@@ -1,6 +1,8 @@
 # $Id$
 
-FILES=	call config dial dialcode passwd port sys1 sys2
+FILES=	call.sample config.sample dial.sample dialcode.sample passwd.sample \
+	port.sample sys1.sample sys2.sample
+
 NOOBJ=	noobj
 
 BINOWN=	$(owner)
