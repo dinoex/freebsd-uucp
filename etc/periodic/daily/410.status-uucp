@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $FreeBSD: src/etc/periodic/daily/410.status-uucp,v 1.3 1999/08/27 23:24:04 peter Exp $
+# $FreeBSD: src/etc/periodic/daily/410.status-uucp,v 1.4 2000/06/23 01:18:23 brian Exp $
 #
 
 # If there is a global system configuration file, suck it in.
@@ -13,11 +13,24 @@ fi
 
 case "$daily_status_uucp_enable" in
     [Yy][Ee][Ss])
-	if [ -d /var/spool/uucp -a -x /usr/bin/uustat ]
+	if [ ! -d /var/spool/uucp ]
 	then
+	    echo '$daily_status_uucp_enable is set but /var/spool/uucp' \
+		"doesn't exist"
+	    rc=2
+	elif [ ! -x /usr/bin/uustat ]
+	then
+	    echo '$daily_status_uucp_enable is set but /usr/bin/uustat' \
+		"isn't executable"
+	    rc=2
+	else
 	    echo ""
 	    echo "UUCP status:"
 
-	    uustat -a
+	    uustat -a && rc=0 || rc=3
 	fi;;
+
+    *)  rc=0;;
 esac
+
+exit $rc
