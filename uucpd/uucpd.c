@@ -74,6 +74,7 @@ static const char rcsid[] =
 #include <time.h>
 #include <unistd.h>
 #include <utmp.h>
+#include <libutil.h>
 
 #include "pathnames.h"
 
