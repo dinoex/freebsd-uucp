@@ -12,6 +12,6 @@ all clean cleandir depend lint tags:
 
 install:
 	${INSTALL} -c -o ${BINOWN} -g ${BINGRP} -m 440 ${FILES} \
-		${DESTDIR}/etc/uucp
+		${PREFIX}/etc/uucp
 
 .include <bsd.prog.mk>
