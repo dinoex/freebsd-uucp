@@ -37,4 +37,4 @@
 
 #include <paths.h>
 
-#define _PATH_UUCICO    "/usr/libexec/uucp/uucico"
+#define _PATH_UUCICO    PREFIX "/libexec/uucp/uucico"

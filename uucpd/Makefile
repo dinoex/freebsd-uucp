@@ -8,6 +8,7 @@ BINDIR=	${PREFIX}/libexec
 MANDIR=	${PREFIX}/man/man
 LDADD=  -lcrypt -lutil
 DPADD=  ${LIBCRYPT} ${LIBUTIL}
+CFLAGS+= -DPREFIX=\"${PREFIX}\"
 
 .if defined(WITH_PAM)
 CFLAGS+= -DUSE_PAM
