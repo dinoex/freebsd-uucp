@@ -458,7 +458,7 @@
 
 /* Set HAVE_UNION_WAIT to 1 if union wait is defined in the header
    file <sys/wait.h>.  */
-#define HAVE_UNION_WAIT 1
+/* #undef HAVE_UNION_WAIT */
 
 /* Set HAVE_LONG_FILE_NAMES to 1 if the system supports file names
    longer than 14 characters.  */
