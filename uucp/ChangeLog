@@ -1,3 +1,475 @@
+2003-05-29  Ian Lance Taylor  <ian@airs.com>
+
+	* Released version 1.07.
+
+	* Makefile.am (dist-hook): New target.
+	* Makefile.in: Rebuild.
+
+2003-05-28  Ian Lance Taylor  <ian@airs.com>
+
+	* uucico.c (uhelp): Make capitalization consistent.
+
+	* proty.c: Add prototype declaration for fyxchg_syncs.
+
+2002-03-07  Ian Lance Taylor  <ian@airs.com>
+
+	* configure.in: Substitute NEWCONFIGDIR and OLDCONFIGDIR rather
+	than defining them.
+	* uuconf/Makefile.am (AM_CFLAGS): Define NEWCONFIGLIB and
+	OLDCONFIGLIB.
+	* configure, config.h.in, Makefile.in, */Makefile.in: Rebuild.
+
+2002-03-06  Ian Lance Taylor  <ian@airs.com>
+
+	* uucp.texi (Compilation): Use @option in table of configure
+	options.
+	(Configuration Files): The newconfigdir variable is now set using
+	a configure option.
+
+	* configure.in: Don't assume that ac_cv_func_getline will be
+	defined, since we no longer always test for the presence of
+	getline.
+	* configure, config.h.in: Rebuild.
+
+2002-03-05  Ian Lance Taylor  <ian@airs.com>
+
+	* Released beta version 1.07.
+
+	* configure.in: Don't define SBINDIR.
+	* unix/Makefile.am (AM_CFLAGS): Define SBINDIR.
+	* configure, config.h.in, unix/Makefile.in: Rebuild.
+
+	* Makefile.am (EXTRA_DIST): Define.
+	* Makefile.in: Rebuild.
+
+	* Makefile.am (UUHEADERS): Add sysdep.h.
+	* unix/Makefile.am (libunix_a_SOURCES): Add fsusg.h.
+	* uuconf/Makefile.am (libuuconf_a_SOURCES): Add alloc.h, syshdr.h,
+	and uucnfi.h.
+	* Makefile.in, unix/Makefile.in, uuconf/Makefile.in: Rebuild.
+
+	* uucico.c (fcall): If a port was specified on the command line,
+	and the current alternate does not use that port, but a later
+	alternate does, then skip to the later alternate.
+
+	* uucp.texi: Use new Texinfo commands @command, @option, @email,
+	and @url.
+
+	* uucp.texi: Update version number to 1.07.
+
+	* uucico.8: Don't specify debugging file location, just mention
+	uulog -D.
+	* uuxqt.8: Likewise.
+	* uux.1: Mention /var/spool/uucppublic as possible public
+	directory location.
+
+	* cu.1: Remove FILES section.  Update version number to 1.07.
+	* uucp.1: Likewise.
+	* uustat.1: Likewise.
+	* uux.1: Likewise.
+	* uucico.8: Likewise.
+	* uuxqt.8: Likewise.
+
+	* policy.h: Add some comments for modern systems.
+	(HAVE_UNBLOCKED_WRITES): Default to 1.
+
+2002-03-02  Ian Lance Taylor  <ian@airs.com>
+
+	* trans.h (FEATURE_QUOTES): Define.
+	* lib/quote.c: New file.
+	* lib/quotes.c: New file.
+	* lib/parse.c (ulunquote_cmd): New static function.
+	(fparse_cmd): Call it before returning.
+	* unix/splcmd.c (zsysdep_spool_commands): Quote command if
+	necessary.  Remove whitespace check.
+	* send.c (flocal_send_request): Quote command if necessary.
+	(fsend_exec_file_init): Quote execution file if necessary.
+	(usadd_exec_line): Add fquote parameter.
+	* rec.c (flocal_rec_send_request): Quote command if necessary.
+	(frec_file_end): Quote execution file if necessary.
+	* xcmd.c (flocal_xcmd_request): Quote command if necessary.
+	* uucico.c (fdo_call): Add FEATURE_QUOTES to -N option.
+	(faccept_call): Add FEATURE_QUOTES to ROKN argument.
+	* uuxqt.c (fQquoted): New static variable.
+	(asQcmds): Add "Q".
+	(uqdo_xqt_file): Initialize and check fQquoted.
+	* uux.c (fXquote, fXquote_output): New static variables.
+	(main): Don't check for whitespace in notification address--revert
+	patch of 2002-02-16.  Set fXquote if quoting is needed.
+	(uxadd_xqt_line): If fXquote, quote strings.
+	* uucp.c (main): Don't check for whitespace in notification
+	address--revert patch of 2002-02-16.
+	* uudefs.h: Declare fparse_cmd, fcmd_needs_quotes, uquote_cmd,
+	ufree_quoted_cmd, and zquote_cmd_string.
+	* uucp.texi (Execution File Format): Document "Q" command.
+	(The Initial Handshake): Document feature bitmask 040--
+	FEATURE_QUOTES.
+	(UUCP Protocol Commands): Document -q option for all commands.
+	* lib/Makefile.am (libuucp_a_SOURCES): Add quote.c and quotes.c.
+	* lib/Makefile.in: Rebuild.
+
+2002-02-26  Ian Lance Taylor  <ian@airs.com>
+
+	* Peter Rye: contrib/xchat.c: (do_script): Correct brace
+	placement.
+	* contrib/xc-conf.h-dist: Include "../config.h" rather than
+	"../conf.h".
+	* contrib/Ringback.Hayes: New file.
+
+	* uuconf.h (struct uuconf_tcp_port): Add uuconf_iversion field.
+	* unix/tcp.c (ftcp_set_hints): New static function.
+	(ftcp_open): Use ftcp_set_hints.  Check version when falling back
+	to IPv4 code.  Use IPV6_BINDV6ONLY option if it is defined.
+	(ftcp_dial): Use ftcp_set_hints.  Check version when falling back
+	to IPv4 code.
+	* uuconf/tportc.c (asPtcp_cmds): Add "version".
+	(_uuconf_iport_cmd): Initialize uuconf_iversion field.
+	* uuconf/hport.c (uuconf_hdb_find_port): Initialize
+	uuconf_iversion field.
+	* uuconf/vsinfo.c (_uuconf_iv2_system_internal): Likewise.
+	* uuchk.c (ikshow_port): Report TCP port version number.
+	* uucp.texi (port File): Document new "version" command.
+
+2002-02-24  Ian Lance Taylor  <ian@airs.com>
+
+	* conn.c (fconn_lock): Add fuser parameter.  Change all callers.
+	(fconn_open): Likewise.
+	* conn.h (struct sconncmds): Add fuser parameter to pflock and
+	pfopen.
+	(fconn_lock, fconn_open): Update declarations.
+	* cu.c (struct sconninfo): Add fdirect field.
+	(main): Initialize sinfo.fdirect.
+	* unix/pipe.c (fspipe_open): Add fuser parameter.
+	* unix/serial.c (fsserial_lock, fsserial_open): Likewise.
+	(fsstdin_open, fsmodem_open, fsdirect_open): Likewise.
+	* unix/tcp.c (ftcp_open): Likewise.
+	* unix/tli.c (ftli_open): Likewise.
+
+	* uux.c: Include <sysexits.h> if available.  Define macros from
+	<sysexits.h> if not defined.  Change all calls to exit to use EX_*
+	macros.  Change all calls to fsysdep_exit to use exit.
+	(main): Pass uxfatal rather than uxabort to ulog_fatal_fn.  Do it
+	at the start of the function.
+	(uxfatal): New static function.
+	(uxabort): Add istat parameter.  Change all callers.
+	* unix/splcmd.c (zsysdep_spool_commands): Add pftemp parameter.
+	Change call callers.
+	* system.h (zsysdep_spool_commands): Update declaration.
+	* uucp.texi (uux Description): Document uux exit status.
+	* uux.1: Likewise.
+
+	* unix/walk.c (iswalk_dir): Mark qstat as unused.
+
+2002-02-22  Ian Lance Taylor  <ian@airs.com>
+
+	* uucp.c (uccopy): When doing a local copy, copy the file mode as
+	well.
+
+	* configure.in: Only check for getline if getdelim is present.
+	* configure: Rebuild.
+
+	* unix/serial.c (asSbaud_table): Add more entries.
+
+	* uucp.c (uchelp): Correct text: -u is like --user, not --usage.
+
+	* John Hughes: uucp.c (asClongopts): Correct --noexpand to -W.
+
+	* uuto.in: Add support for --version and --help options.
+	* Makefile.am (uuto): Substitute version number for @VERS@.
+	* Makefile.in: Rebuild.
+
+	* Marcus Shang: unix/xqtsub.c (fsysdep_execute): If the output
+	file is in the spool directory, create subdirectories if
+	necessary.
+
+	* uucico.c (fconn_call): If all matching ports are in use, set
+	system status to STATUS_PORT_FAILED.
+
+	* uuchk.c (ukhelp): Update copyright.  Add bug reporting address.
+	* uucico.c (uhelp): Likewise.
+	* uucp.c (uchelp): Likewise.
+	* uulog.c (ulhelp): Likewise.
+	* uuname.c (unhelp): Likewise.
+	* uustat.c (ushelp): Likewise.
+	* uux.c (uxhelp): Likewise.
+	* uuxqt.c (uqhelp): Likewise.
+	* cu.c (ucuhelp): Likewise.  Output to stdout.
+	* uuconv.c (uvhelp): Likewise.
+	* uupick.c (uphelp): Likewise.
+
+	* uuchk.c (main): Update version statement to current GNU
+	standard.  Update copyright in version statement.
+	* uucico.c (main): Likewise.
+	* uucp.c (main): Likewise.
+	* uulog.c (main): Likewise.
+	* uuname.c (main): Likewise.
+	* uustat.c (main): Likewise.
+	* uux.c (main): Likewise.
+	* uuxqt.c (main): Likewise.
+	* cu.c (main): Likewise.  Output version to stdout.
+	* uuconv.c (main): Likewise.
+	* uupick.c (main): Likewise.
+
+	* Tim Pozar: uucp.texi (Acknowledgements): Note that gnuucp was
+	based on uuslave.
+
+	* Michael Ju. Tokarev: unix/serial.c (fsserial_hardflow): Add
+	support for CRTSXOFF used on Solaris.
+
+	* unix/serial.c (fsserial_lockfile): In HAVE_SCO_LOCKFILES case,
+	only lower case the last letter in the lock file name.
+	* uucp.texi (UUCP Lock Files): Document this change.
+
+	* unix/serial.c (fsblock): Test for EINVAL when changing the write
+	descriptor as we do when changing the read descriptor.
+
+	* unix/seq.c (ixsysdep_get_sequence): If SPOOLDIR_HDB or
+	SPOOLDIR_SVR4, use .SQFILE for the name of the sequence directory,
+	to avoid colliding with the command sequence number file used by
+	fscmd_seq.  It's not compatible at the file level, but it might
+	work.
+
+	* uucico.c (fspawn_uuxqt): Ignore the zsys parameter.
+
+	* Godfrey van der Linden: unix/serial.c (fsysdep_conn_io): Limit
+	the delay waiting for a write to the number of bytes we are
+	prepared to read.
+
+2002-02-17  Ian Lance Taylor  <ian@airs.com>
+
+	* unix/serial.c (fsysdep_conn_io): If FD_ZERO is defined, use
+	fd_set for the select argument.
+
+	* Don Phillips: uustat.c (fsquery_show): Add space in the 0X case
+	to make everything line up.
+	* unix/status.c (fsysdep_get_status): Correct removal of trailing
+	quote.
+
+	* unix/serial.c (fsserial_open): Make sure that we can not set the
+	ibaud field to zero for a terminal.
+	(fsysdep_conn_io): Only use baud rate in delay calculations on a
+	terminal.
+
+2002-02-16  Ian Lance Taylor  <ian@airs.com>
+
+	* configure.in: When checking for <sys/select.h>, only include
+	<sys/time.h> if it exists.
+	* configure: Rebuild.
+
+	Raymond Nijssen: Support for hardware flow control on HP/UX.
+	* unix/serial.c: Include <sys/termiox.h> if the system has it.
+	(fsserial_hardflow): If HAVE_SYS_TERMIOX_H, use TCGETX/TCSETX to
+	enable and disable hardware flow control.
+	* configure.in: Check for existence of <sys/termiox.h>.
+	* configure, config.h.in: Rebuild.
+
+	* uucp.c (main): Check for unsupported whitespace in notification
+	address.
+	* uux.c (main): Likewise.
+
+	* unix/splcmd.c (zsysdep_spool_commands): Check for unsupported
+	use of white space.
+
+2002-02-14  Ian Lance Taylor  <ian@airs.com>
+
+	* unix/uid.c (fsuser_perms): Add piegid parameter.  Change all
+	callers.
+	(fsuucp_perms): Add iegid parameter.  Change all callers.
+	* sysdep.h (fsuser_perms, fsuucp_perms): Update declarations.
+
+	* John Hughes: uuconf.h (struct uuconf_system): Add
+	uuconf_cmax_file_time field.
+	* uuconf/syssub.c (SYSTEM_INTEGERS): Add cmax_file_time.
+	* uuconf/tsinfo.c (asIcmds): Add max-file-time command.
+	* trans.c (floop): Check maximum file send time.
+	* uuchk.c (ukshow): Print maximum file send time.
+	* uucp.texi (File Transfer Control): Document max-file-time.
+
+	* send.c (flocal_send_await_reply): Only seek to the end of the
+	file if we are already sending it.
+
+	* trans.c (utransfree): If the file is open, close it.
+	* rec.c (flocal_rec_await_reply): Don't bother closing the file on
+	error.
+	(fremote_send_reply): Likewise.  Set the e field to EFILECLOSED
+	after closing it.
+	(frec_file_end): Likewise.
+	* send.c (fremote_rec_reply): Set the e field to EFILECLOSED after
+	closing it.
+	(fsend_await_confirm): Likewise.
+
+	* John Hughes: trans.c (struct sreceive_ack): Move definition
+	before local function prototypes.
+	(utfree_queue): New static function.
+	(uclear_queue): Use utfree_queue and utfree_acked.
+	(utfree_receive_ack): New static function.
+	(uwindow_acked): Use utfree_receive_ack.
+	(utfree_acked): New static function.
+
+	* lib/buffer.c: Add MALLOC_BUFFERS case to use malloc/free for
+	each buffer, to permit easy use of debugging malloc.
+
+	* chat.c (fcsend): Permit \M and \m in any type of chat script.
+	* uucp.texi (Chat Scripts): Document \M and \m here.
+	(dial File): Don't document \M and \m here.
+
+	* uuconf/chatc.c (_uuconf_ichat_cmd): Treat chat-program used with
+	no arguments as specifying no chat-program.
+
+2002-02-08  Ian Lance Taylor  <ian@airs.com>
+
+	* install-sh: Replace with current version from automake.
+
+	* configure.in: Don't put AC_MSG_WARN for ftime on the same line
+	as AC_MSG_RESULT.
+	* configure: Rebuild.
+
+	* uuxqt.c (uqdo_xqt_file): If uucp is not a permitted command,
+	then reject a uucp command which does not have two arguments.
+	(fqforward): Don't crash if zfile is NULL.
+
+	* log.c (ulog): Add code to HDB_LOGGING case to protect the
+	administrator against foolishness.
+
+	* Meno Abels: uux.c (main): Correct off-by-one error in memory
+	allocation.
+
+	* Vadim Radionov: copy.c (fcopy_open_file): Check for read
+	errors.
+
+	* Michael Ju. Tokarev: unix/serial.c (fsserial_open): Force port
+	into blocking mode, in case the chat program cares.
+
+	* unix/umode.c: New file.
+	* unix/access.c (fsysdep_daemon_access): Change error message if
+	stat returns EACCES.
+	* uucp.c (uccopy): Use ixsysdep_user_file_mode to get the file
+	mode.
+	* system.h (ixsysdep_user_file_mode): Declare.
+	* unix/Makefile.am (libunix_a_SOURCES): Add umode.c.
+	* unix/Makefile.in: Rebuild.
+
+	* Roland McGrath: unix/work.c (fsysdep_get_work_init): Add cmax
+	parameter.  Change all callers.
+	(fsysdep_get_work): Likewise.
+	* system.h (fsysdep_get_work_init): Update declaration.
+	(fsysdep_get_work): Likewise.
+
+	* unix/tcp.c: Use getaddrinfo if available to decide how to call
+	the socket functions.
+	* configure.in: Check for getaddrinfo and struct
+	sockaddr_storage.
+	* configure, config.h.in: Rebuild.
+
+	* unix/mkdirs.c (fsysdep_make_dirs): Correct error message in case
+	where we don't have permission to create the directory.
+
+2002-02-07  Ian Lance Taylor  <ian@airs.com>
+
+	* John Hughes: uuxqt.c (uqcleanup): Don't unlock the execution
+	file until after it has been removed, to avoid a race which may
+	lead to it's being executed twice.
+
+	* unix/xqtsub.c (fsysdep_lock_uuxqt_dir): Call fclean_uuxqt_dir.
+	(fsysdep_unlock_uuxqt_dir): Move directory cleaning code into
+	fclean_uuxqt_dir, and call it.
+	(fclean_uuxqt_dir): New static function.
+
+	* unix/xqtsub.c (fsysdep_copy_uuxqt_files): Rename from
+	fsysdep_move_uuxqt_files.  Remove fto parameter.  Use link instead
+	of rename.  Don't bother moving files back on failure.
+	* uuxqt.c (uqdo_xqt_file): Call fsysdep_copy_uuxqt_files rather
+	than fsysdep_move_uuxqt_files.  Remove call to
+	fsysdep_move_uuxqt_files after failure.
+	* system.h (fsysdep_copy_uuxqt_files): Rename declaration from
+	fsysdep_move_uuxqt_files.
+
+	* Ignatios Souvatzis: uucp.texi (Execution File Format): Correct
+	example of X. file.
+
+	* uucp.c (uccopy): Add fforcelocal option.  Change all callers.
+
+	* protz.c (fzwait): Remove unreachable return statement.
+
+	* unix/lock.c (fsdo_lock): Test for error when removing read only
+	stale lock file.
+
+2002-02-06  Ian Lance Taylor  <ian@airs.com>
+
+	* uuxqt.c (uqdo_xqt_file): Check for long versions of prohibited
+	options.
+	* uucp.c (asClongopts): Add comment indicating that changes here
+	must be reflected in uuxqt.c.
+
+	* MANIFEST, */MANIFEST: Remove.  These files are not used by
+	automake.
+
+	* uuconf/cnfnms.c: New file.
+	* uuconf.h (struct uuconf_config_file_names): Define.
+	(uuconf_config_files): Declare.
+	* uuchk.c (main): Dump configuration file names.
+	(ukshow_names): New static function.
+	* uuconf/Makefile.am (libuuconf_a_SOURCES): Add cnfnms.c.
+	* uuconf/Makefile.in: Rebuild.
+
+2002-01-17  Ian Lance Taylor  <ian@airs.com>
+
+	* Many files: Change types and add casts and attributes to avoid
+	warnings.
+
+	* uudefs.h: Use attribute macro in ulog declaration.
+
+	* uucp.h: Add GCC attribute macros.
+
+	* configure.in: Add --enable-build-warnings option.
+	* Makefile.am (AM_CFLAGS): Add $(WARN_CFLAGS).
+	* lib/Makefile.am (AM_CFLAGS): Likewise.
+	* unix/Makefile.am (AM_CFLAGS): Likewise.
+	* uuconf/Makefile.am (AM_CFLAGS): Likewise.
+	* configure, Makefile.in: Rebuild.
+	* lib/Makefile.in, unix/Makefile.in, uuconf/Makefile.in: Rebuild.
+
+2002-01-16  Ian Lance Taylor  <ian@airs.com>
+
+	* Makefile.am: New file.
+	* lib/Makefile.am: New file.
+	* uuconf/Makefile.am: New file.
+	* unix/Makefile.am: New file.
+	* configure.in: Call AM_INIT_AUTOMAKE.  Change AC_CONFIG_HEADER to
+	AM_CONFIG_HEADER.  Call AM_MAINTAINER_MODE.  Call AC_ARG_WITH for
+	user name and configuration directories.  Define SBINDIR.  Don't
+	call AC_PROG_INSTALL, AC_PROG_MAKE_SET, AC_C_CROSS.  Add
+	descriptions to all AC_DEFINE calls.  Don't set or substitute
+	CFLAGS or LDFLAGS.  Add UUDIR conditional.  Don't create stamp-h
+	in AC_OUTPUT.
+	* Makefile.in: Build using automake.
+	* lib/Makefile.in: Likewise.
+	* uuconf/Makefile.in: Likewise.
+	* unix/Makefile.in: Likewise.
+	* aclocal.m4: Build using aclocal.
+	* config.h.in: Build using autoheader.
+	* configure: Rebuild.
+	* stamp-h.in: New timestamp file.
+
+	* sysdep.h: Rename from sysh.unx.  A non-Unix port looks
+	unlikely.
+	* uuconf/syshdr.h: Rename from uuconf/syshdr.unx.
+
+	* AUTHORS: New file, required by automake --gnu.
+	* INSTALL: Likewise.  Generic version at least for now.
+	* compile: New file, required by automake --gnu.
+	* depcomp: Likewise.
+	* missing: Likewise.
+	* mkinstalldirs: Likewise.
+	* texinfo.tex: Likewise.
+
+	* .cvsignore: Ignore uucp.info* files.
+
+Mon Sep 16 21:29:10 1996  Ian Lance Taylor  <ian@airs.com>
+
+	* trans.c (floop): Don't request a hangup if we are waiting for
+	data for a job and we only have one channel.
+
 Sun Aug 20 15:12:36 1995  Ian Lance Taylor  <ian@airs.com>
 
 	* Released version 1.06.1.

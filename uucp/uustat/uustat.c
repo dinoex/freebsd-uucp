@@ -1,7 +1,7 @@
 /* uustat.c
    UUCP status program
 
-   Copyright (C) 1991, 1992, 1993, 1994, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1994, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -387,8 +386,10 @@ main (argc, argv)
 
 	case 'v':
 	  /* Print version and exit.  */
-	  printf ("%s: Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995 Ian Lance Taylor\n",
-		  zProgram, VERSION);
+	  printf ("uustat (Taylor UUCP) %s\n", VERSION);
+	  printf ("Copyright (C) 1991, 92, 93, 94, 1995, 2002 Ian Lance Taylor\n");
+	  printf ("This program is free software; you may redistribute it under the terms of\n");
+	  printf ("the GNU General Public LIcense.  This program has ABSOLUTELY NO WARRANTY.\n");
 	  exit (EXIT_SUCCESS);
 	  /*NOTREACHED*/
 
@@ -597,7 +598,7 @@ ususage ()
 static void
 ushelp ()
 {
-  printf ("Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995 Ian Lance Taylor\n",
+  printf ("Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995, 2002 Ian Lance Taylor\n",
 	  VERSION);
   printf ("Usage: %s [options]\n", zProgram);
   printf (" -a,--all: list all UUCP jobs\n");
@@ -629,6 +630,7 @@ ushelp ()
 #endif /* HAVE_TAYLOR_CONFIG */
   printf (" -v,--version: Print version and exit\n");
   printf (" --help: Print help and exit\n");
+  printf ("Report bugs to taylor-uucp@gnu.org\n");
 }
 
 /* We need to be able to read information from an execution file.  */
@@ -740,11 +742,11 @@ usxqt_file_free ()
 /*ARGSUSED*/
 static int
 isxqt_cmd (puuconf, argc, argv, pvar, pinfo)
-     pointer puuconf;
+     pointer puuconf ATTRIBUTE_UNUSED;
      int argc;
      char **argv;
-     pointer pvar;
-     pointer pinfo;
+     pointer pvar ATTRIBUTE_UNUSED;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   size_t clen;
   int i;
@@ -775,11 +777,11 @@ isxqt_cmd (puuconf, argc, argv, pvar, pinfo)
 /*ARGSUSED*/
 static int
 isxqt_file (puuconf, argc, argv, pvar, pinfo)
-     pointer puuconf;
+     pointer puuconf ATTRIBUTE_UNUSED;
      int argc;
      char **argv;
-     pointer pvar;
-     pointer pinfo;
+     pointer pvar ATTRIBUTE_UNUSED;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   if (argc != 2 && argc != 3)
     return UUCONF_CMDTABRET_CONTINUE;
@@ -802,11 +804,11 @@ isxqt_file (puuconf, argc, argv, pvar, pinfo)
 /*ARGSUSED*/
 static int
 isxqt_user (puuconf, argc, argv, pvar, pinfo)
-     pointer puuconf;
-     int argc;
+     pointer puuconf ATTRIBUTE_UNUSED;
+     int argc ATTRIBUTE_UNUSED;
      char **argv;
-     pointer pvar;
-     pointer pinfo;
+     pointer pvar ATTRIBUTE_UNUSED;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   zSxqt_user = zbufcpy (argv[1]);
   zSxqt_system = zbufcpy (argv[2]);
@@ -933,7 +935,7 @@ fsworkfiles_system (puuconf, icmd, qsys, cusers, pazusers, fnotusers, iold,
 {
   boolean fret;
 
-  if (! fsysdep_get_work_init (qsys, UUCONF_GRADE_LOW))
+  if (! fsysdep_get_work_init (qsys, UUCONF_GRADE_LOW, 0))
     return FALSE;
 
   while (TRUE)
@@ -941,7 +943,7 @@ fsworkfiles_system (puuconf, icmd, qsys, cusers, pazusers, fnotusers, iold,
       struct scmd s;
       long itime;
 
-      if (! fsysdep_get_work (qsys, UUCONF_GRADE_LOW, &s))
+      if (! fsysdep_get_work (qsys, UUCONF_GRADE_LOW, 0, &s))
 	{
 	  usysdep_get_work_free (qsys);
 	  return FALSE;
@@ -2166,7 +2168,7 @@ fsquery_system (qsys, pq, inow, zlocalname, csystems, pazsystems,
   char *zid;
   boolean fret;
 
-  if (! fsysdep_get_work_init (qsys, UUCONF_GRADE_LOW))
+  if (! fsysdep_get_work_init (qsys, UUCONF_GRADE_LOW, 0))
     return FALSE;
 
   cwork = 0;
@@ -2178,7 +2180,7 @@ fsquery_system (qsys, pq, inow, zlocalname, csystems, pazsystems,
       long itime;
       char *zthisid;
 
-      if (! fsysdep_get_work (qsys, UUCONF_GRADE_LOW, &s))
+      if (! fsysdep_get_work (qsys, UUCONF_GRADE_LOW, 0, &s))
 	return FALSE;
       if (s.bcmd == 'H')
 	break;
@@ -2306,7 +2308,7 @@ fsquery_show (qsys, cwork, ifirstwork, qxqt, inow, zlocalname,
     printf (" ");
 
   if (qxqt == NULL)
-    printf ("  0X (0 secs)  ");
+    printf ("  0X (0 secs)   ");
   else
     {
       printf ("%3dX (", qxqt->cxqts);

@@ -1,7 +1,7 @@
 /* xqtsub.c
    System dependent functions used only by uuxqt.
 
-   Copyright (C) 1991, 1992, 1993, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -77,6 +76,8 @@ const char xqtsub_rcsid[] = "$FreeBSD$";
 #ifndef EX_TEMPFAIL
 #define EX_TEMPFAIL 75
 #endif
+
+static boolean fclean_uuxqt_dir P((const char *zxqtdir));
 
 /* Get the full pathname of the command to execute, given the list of
    permitted commands and the allowed path.  */
@@ -221,7 +222,7 @@ fsysdep_execute (qsys, zuser, pazargs, zfullcmd, zinput, zoutput,
      const struct uuconf_system *qsys;
      const char *zuser;
      const char **pazargs;
-     const char *zfullcmd;
+     const char *zfullcmd ATTRIBUTE_UNUSED;
      const char *zinput;
      const char *zoutput;
      boolean fshell;
@@ -271,12 +272,26 @@ fsysdep_execute (qsys, zuser, pazargs, zfullcmd, zinput, zoutput,
       aidescs[1] = creat ((char *) zoutput, IPRIVATE_FILE_MODE);
       if (aidescs[1] < 0)
 	{
-	  ulog (LOG_ERROR, "creat (%s): %s", zoutput, strerror (errno));
-	  *pftemp = TRUE;
-	  ferr = TRUE;
+	  if (errno == ENOENT && zoutput[0] != '/')
+	    {
+	      if (! fsysdep_make_dirs (zoutput, FALSE))
+		{
+		  *pftemp = TRUE;
+		  ferr = TRUE;
+		}
+	      else
+		aidescs[1] = creat ((char *) zoutput, IPRIVATE_FILE_MODE);
+	    }
+	  if (! ferr && aidescs[1] < 0)
+	    {
+	      ulog (LOG_ERROR, "creat (%s): %s", zoutput, strerror (errno));
+	      *pftemp = TRUE;
+	      ferr = TRUE;
+	    }
 	}
-      else if (fcntl (aidescs[1], F_SETFD,
-		      fcntl (aidescs[1], F_GETFD, 0) | FD_CLOEXEC) < 0)
+      if (! ferr
+	  && fcntl (aidescs[1], F_SETFD,
+		    fcntl (aidescs[1], F_GETFD, 0) | FD_CLOEXEC) < 0)
 	{
 	  ulog (LOG_ERROR, "fcntl (FD_CLOEXEC): %s", strerror (errno));
 	  ferr = TRUE;
@@ -442,7 +457,7 @@ boolean
 fsysdep_unlock_uuxqt (iseq, zcmd, cmaxuuxqts)
      int iseq;
      const char *zcmd;
-     int cmaxuuxqts;
+     int cmaxuuxqts ATTRIBUTE_UNUSED;
 {
   char ab[sizeof "LCK.XQT.9999"];
   boolean fret;
@@ -527,7 +542,7 @@ fsysdep_unlock_uuxqt_file (zfile)
 /* Lock the execute directory.  Since we use a different directory
    depending on which LCK.XQT.dddd file we got, there is actually no
    need to create a lock file.  We do make sure that the directory
-   exists, though.  */
+   exists, though, and that it is empty.  */
 
 boolean
 fsysdep_lock_uuxqt_dir (iseq)
@@ -552,7 +567,7 @@ fsysdep_lock_uuxqt_dir (iseq)
       return FALSE;
     }
 
-  return TRUE;
+  return fclean_uuxqt_dir (zxqtdir);
 }
 
 /* Unlock the execute directory and clear it out.  The lock is
@@ -565,7 +580,6 @@ fsysdep_unlock_uuxqt_dir (iseq)
 {
   const char *zxqtdir;
   char abxqtdir[sizeof XQTDIR + 4];
-  DIR *qdir;
 
   if (iseq == 0)
     zxqtdir = XQTDIR;
@@ -574,6 +588,15 @@ fsysdep_unlock_uuxqt_dir (iseq)
       sprintf (abxqtdir, "%s%04d", XQTDIR, iseq);
       zxqtdir = abxqtdir;
     }
+
+  return fclean_uuxqt_dir (zxqtdir);
+}
+
+static boolean
+fclean_uuxqt_dir (zxqtdir)
+     const char *zxqtdir;
+{
+  DIR *qdir;
 
   qdir = opendir ((char *) zxqtdir);
   if (qdir != NULL)
@@ -611,11 +634,10 @@ fsysdep_unlock_uuxqt_dir (iseq)
 /* Move files into the execution directory.  */
 
 boolean
-fsysdep_move_uuxqt_files (cfiles, pzfrom, pzto, fto, iseq, pzinput)
+fsysdep_copy_uuxqt_files (cfiles, pzfrom, pzto, iseq, pzinput)
      int cfiles;
      const char *const *pzfrom;
      const char *const *pzto;
-     boolean fto;
      int iseq;
      char **pzinput;
 {
@@ -656,55 +678,26 @@ fsysdep_move_uuxqt_files (cfiles, pzfrom, pzto, fto, iseq, pzinput)
 	  zinput = NULL;
 	}
 
-      if (! fto)
+      if (link (zfrom, zto) < 0)
 	{
-	  const char *ztemp;
-	  
-	  ztemp = zfrom;
-	  zfrom = zto;
-	  zto = ztemp;
-	  (void) chmod (zfrom, IPRIVATE_FILE_MODE);
-	}
-
-      if (rename (zfrom, zto) < 0)
-	{
-#if HAVE_RENAME
-	  /* On some systems the system call rename seems to fail for
-	     arbitrary reasons.  To get around this, we always try to
-	     copy the file by hand if the rename failed.  */
-	  errno = EXDEV;
-#endif
-
-	  if (errno != EXDEV)
+	  if (errno != EXDEV && errno != EEXIST && errno != EMLINK)
 	    {
-	      ulog (LOG_ERROR, "rename (%s, %s): %s", zfrom, zto,
+	      ulog (LOG_ERROR, "link (%s, %s): %s", zfrom, zto,
 		    strerror (errno));
 	      ubuffree (zfree);
-	      break;
+	      return FALSE;
 	    }
 
 	  if (! fcopy_file (zfrom, zto, FALSE, FALSE, FALSE))
 	    {
 	      ubuffree (zfree);
-	      break;
+	      return FALSE;
 	    }
-	  if (remove (zfrom) < 0)
-	    ulog (LOG_ERROR, "remove (%s): %s", zfrom,
-		  strerror (errno));
 	}
 
-      if (fto)
-	(void) chmod (zto, IPUBLIC_FILE_MODE);
+      (void) chmod (zto, IPUBLIC_FILE_MODE);
 
       ubuffree (zfree);
-    }
-
-  if (i < cfiles)
-    {
-      if (fto)
-	(void) fsysdep_move_uuxqt_files (i, pzfrom, pzto, FALSE, iseq,
-					 (char **) NULL);
-      return FALSE;
     }
 
   return TRUE;

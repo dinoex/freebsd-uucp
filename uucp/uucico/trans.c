@@ -1,7 +1,7 @@
 /* trans.c
    Routines to handle file transfers.
 
-   Copyright (C) 1992, 1993, 1995 Ian Lance Taylor
+   Copyright (C) 1992, 1993, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -36,6 +35,22 @@ const char trans_rcsid[] = "$FreeBSD$";
 #include "prot.h"
 #include "system.h"
 #include "trans.h"
+
+/* To avoid wasting a lot of time scanning the spool directory, which
+   might cause the remote system to time out, we limit each scan to
+   pick up at most a certain number of files.  */
+#define COMMANDS_PER_SCAN (200)
+
+/* The structure we use when waiting for an acknowledgement of a
+   confirmed received file in fsent_receive_ack.  */
+
+struct sreceive_ack
+{
+  struct sreceive_ack *qnext;
+  char *zto;
+  char *ztemp;
+  boolean fmarked;
+};
 
 /* Local functions.  */
 
@@ -45,6 +60,7 @@ static void utdequeue P((struct stransfer *));
 static void utchanalc P((struct sdaemon *qdaemon, struct stransfer *qtrans));
 __inline__ static struct stransfer *qtchan P((int ichan));
 __inline__ static void utchanfree P((struct stransfer *qtrans));
+static void utfree_queue P((struct stransfer **pq));
 static boolean fttime P((struct sdaemon *qdaemon, long *pisecs,
 			 long *pimicros));
 static boolean fcheck_queue P((struct sdaemon *qdaemon));
@@ -52,6 +68,8 @@ static boolean ftadd_cmd P((struct sdaemon *qdaemon, const char *z,
 			    size_t cdata, int iremote, boolean flast));
 static boolean fremote_hangup_reply P((struct stransfer *qtrans,
 				       struct sdaemon *qdaemon));
+static void utfree_receive_ack P((struct sreceive_ack *q));
+static void utfree_acked P((void));
 static boolean flocal_poll_file P((struct stransfer *qtrans,
 				   struct sdaemon *qdaemon));
 
@@ -117,18 +135,8 @@ static long iTchecktime;
 /* The size of the command we have read so far in ftadd_cmd.  */
 static size_t cTcmdlen;
 
-/* The structure we use when waiting for an acknowledgement of a
-   confirmed received file in fsent_receive_ack, and a list of those
-   structures.  */
-
-struct sreceive_ack
-{
-  struct sreceive_ack *qnext;
-  char *zto;
-  char *ztemp;
-  boolean fmarked;
-};
-
+/* A list of structures used when waiting for an acknowledgement of a
+   confirmed received file in fsent_receive_ack.  */
 static struct sreceive_ack *qTreceive_ack;
 
 /* Queue up a transfer structure before *pq.  This puts it at the head
@@ -187,7 +195,7 @@ utdequeue (q)
 /*ARGSIGNORED*/
 boolean
 fqueue_local (qdaemon, qtrans)
-     struct sdaemon *qdaemon;
+     struct sdaemon *qdaemon ATTRIBUTE_UNUSED;
      struct stransfer *qtrans;
 {
   utdequeue (qtrans);
@@ -202,7 +210,7 @@ fqueue_local (qdaemon, qtrans)
 
 boolean
 fqueue_remote (qdaemon, qtrans)
-     struct sdaemon *qdaemon;
+     struct sdaemon *qdaemon ATTRIBUTE_UNUSED;
      struct stransfer *qtrans;
 {
   DEBUG_MESSAGE1 (DEBUG_UUCP_PROTO, "fqueue_remote: Channel %d",
@@ -218,7 +226,7 @@ fqueue_remote (qdaemon, qtrans)
 
 boolean
 fqueue_send (qdaemon, qtrans)
-     struct sdaemon *qdaemon;
+     struct sdaemon *qdaemon ATTRIBUTE_UNUSED;
      struct stransfer *qtrans;
 {
 #if DEBUG > 0
@@ -267,7 +275,7 @@ fqueue_send (qdaemon, qtrans)
 
 boolean
 fqueue_receive (qdaemon, qtrans)
-     struct sdaemon *qdaemon;
+     struct sdaemon *qdaemon ATTRIBUTE_UNUSED;
      struct stransfer *qtrans;
 {
 #if DEBUG > 0
@@ -412,8 +420,13 @@ utransfree (q)
       q->iremote = 0;
     }
 
+  if (ffileisopen (q->e))
+    {
+      (void) ffileclose (q->e);
+      q->e = EFILECLOSED;
+    }
+
 #if DEBUG > 0
-  q->e = EFILECLOSED;
   q->zcmd = NULL;
   q->s.zfrom = NULL;
   q->s.zto = NULL;
@@ -432,6 +445,16 @@ utransfree (q)
 
   utdequeue (q);
   utqueue (&qTavail, q, FALSE);
+}
+
+/* Free a queue of transfer structures.  */
+
+static void
+utfree_queue (pq)
+     struct stransfer **pq;
+{
+  while (*pq != NULL)
+    utransfree (*pq);
 }
 
 /* Get the time.  This is a wrapper around ixsysdep_process_time.  If
@@ -511,14 +534,14 @@ fqueue (qdaemon, pfany)
   if (bgrade == '\0')
     return TRUE;
 
-  if (! fsysdep_get_work_init (qsys, bgrade))
+  if (! fsysdep_get_work_init (qsys, bgrade, COMMANDS_PER_SCAN))
     return FALSE;
 
   while (TRUE)
     {
       struct scmd s;
 
-      if (! fsysdep_get_work (qsys, bgrade, &s))
+      if (! fsysdep_get_work (qsys, bgrade, COMMANDS_PER_SCAN, &s))
 	return FALSE;
 
       if (s.bcmd == 'H')
@@ -584,15 +607,16 @@ uclear_queue (qdaemon)
 
   usysdep_get_work_free (qdaemon->qsys);
 
-  qTlocal = NULL;
-  qTremote = NULL;
-  qTsend = NULL;
-  qTreceive = NULL;
+  utfree_queue (&qTlocal);
+  utfree_queue (&qTremote);
+  utfree_queue (&qTsend);
+  utfree_queue (&qTreceive);
   cTchans = 0;
   iTchan = 0;
   qTtiming_rec = NULL;
   cTcmdlen = 0;
-  qTreceive_ack = NULL;
+  if (qTreceive_ack != NULL)
+    utfree_acked ();
   for (i = 0; i < IMAX_CHAN + 1; i++)
     {
       aqTchan[i] = NULL;
@@ -670,7 +694,8 @@ floop (qdaemon)
 	  fhangup = FALSE;
 
 	  if (qdaemon->fhangup_requested
-	      && qTsend == NULL)
+	      && qTsend == NULL
+	      && (qTreceive == NULL || qdaemon->cchans > 1))
 	    {
 	      /* The remote system has requested that we transfer
 		 control by sending CYM after receiving a file.  */
@@ -776,6 +801,8 @@ floop (qdaemon)
 	    {
 	      long isecs, imicros;
 	      boolean fcharged;
+	      long cmax_time;
+	      long istart = 0;
 	      long inextsecs = 0, inextmicros;
 
 	      if (! fttime (qdaemon, &isecs, &imicros))
@@ -792,11 +819,18 @@ floop (qdaemon)
 		  q->zlog = NULL;
 		}
 
+	      cmax_time = qdaemon->qsys->uuconf_cmax_file_time;
+	      if (qdaemon->cchans <= 1)
+		cmax_time = 0;
+	      if (cmax_time > 0)
+		istart = ixsysdep_time (NULL);
+
 	      /* We can read the file in a tight loop until we have a
 		 command to send, or the file send has been cancelled,
-		 or we have a remote job to deal with.  We can
-		 disregard any changes to qTlocal since we already
-		 have something to send anyhow.  */
+		 or we have a remote job to deal with, or the maximum
+		 file send time has been exceeded.  We can disregard
+		 any changes to qTlocal since we already have
+		 something to send anyhow.  */
 	      while (q == qTsend
 		     && q->fsendfile
 		     && qTremote == NULL)
@@ -860,6 +894,15 @@ floop (qdaemon)
 			fret = FALSE;
 
 		      break;
+		    }
+
+		  if (cmax_time > 0
+		      && q->qnext != q
+		      && ixsysdep_time (NULL) - istart >= cmax_time)
+		    {
+		      DEBUG_MESSAGE0 (DEBUG_UUCP_PROTO, "floop: Switch file");
+		      utdequeue (q);
+		      utqueue (&qTsend, q, FALSE);
 		    }
 		}
 
@@ -1141,7 +1184,7 @@ fgot_data (qdaemon, zfirst, cfirst, zsecond, csecond, ilocal, iremote, ipos,
 	  while (cfirst > 0)
 	    {
 	      cwrote = cfilewrite (q->e, (char *) zfirst, cfirst);
-	      if (cwrote == cfirst)
+	      if (cwrote >= 0 && (size_t) cwrote == cfirst)
 		{
 #if FREE_SPACE_DELTA > 0
 		  long cfree_space;
@@ -1152,7 +1195,7 @@ fgot_data (qdaemon, zfirst, cfirst, zsecond, csecond, ilocal, iremote, ipos,
 		     in progress.  */
 		  cfree_space = qdaemon->qsys->uuconf_cfree_space;
 		  if (cfree_space > 0
-		      && ((q->cbytes / FREE_SPACE_DELTA)
+		      && ((size_t) (q->cbytes / FREE_SPACE_DELTA)
 			  != (q->cbytes + cfirst) / FREE_SPACE_DELTA)
 		      && ! frec_check_free (q, cfree_space))
 		    {
@@ -1350,7 +1393,7 @@ static struct sreceive_ack *qTfree_receive_ack;
 
 void
 usent_receive_ack (qdaemon, qtrans)
-     struct sdaemon *qdaemon;
+     struct sdaemon *qdaemon ATTRIBUTE_UNUSED;
      struct stransfer *qtrans;
 {
   struct sreceive_ack *q;
@@ -1369,6 +1412,18 @@ usent_receive_ack (qdaemon, qtrans)
   q->fmarked = FALSE;
 
   qTreceive_ack = q;
+}
+
+/* Free an sreceive_ack structure.  */
+
+static void
+utfree_receive_ack (q)
+     struct sreceive_ack *q;
+{
+  ubuffree (q->zto);
+  ubuffree (q->ztemp);
+  q->qnext = qTfree_receive_ack;
+  qTfree_receive_ack = q;
 }
 
 /* This routine is called by the protocol code when either all
@@ -1393,13 +1448,9 @@ uwindow_acked (qdaemon, fallacked)
 	  struct sreceive_ack *q;
 
 	  q = *pq;
-	  (void) fsysdep_forget_reception (qdaemon->qsys, q->zto,
-					   q->ztemp);
-	  ubuffree (q->zto);
-	  ubuffree (q->ztemp);
+	  (void) fsysdep_forget_reception (qdaemon->qsys, q->zto, q->ztemp);
 	  *pq = q->qnext;
-	  q->qnext = qTfree_receive_ack;
-	  qTfree_receive_ack = q;
+	  utfree_receive_ack (q);
 	}
       else
 	{
@@ -1407,6 +1458,25 @@ uwindow_acked (qdaemon, fallacked)
 	  pq = &(*pq)->qnext;
 	}
     }
+}
+
+/* Free the qTreceive_ack list.  */
+
+static void
+utfree_acked ()
+{
+  struct sreceive_ack *q;
+
+  q = qTreceive_ack;
+  while (q != NULL)
+    {
+      struct sreceive_ack *qnext;
+
+      qnext = q->qnext;
+      utfree_receive_ack (q);
+      q = qnext;
+    }
+  qTreceive_ack = NULL;
 }
 
 /* This routine is called when an error occurred and we are crashing
@@ -1479,7 +1549,7 @@ ufailed (qdaemon)
 static boolean
 flocal_poll_file (qtrans, qdaemon)
      struct stransfer *qtrans;
-     struct sdaemon *qdaemon;
+     struct sdaemon *qdaemon ATTRIBUTE_UNUSED;
 {
   boolean fret;
 

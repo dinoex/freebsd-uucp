@@ -1,7 +1,7 @@
 /* hport.c
    Find a port in the HDB configuration files.
 
-   Copyright (C) 1992, 1993 Ian Lance Taylor
+   Copyright (C) 1992, 1993, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP uuconf library.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucnfi.h"
@@ -29,7 +28,6 @@
 const char _uuconf_hport_rcsid[] = "$FreeBSD: src/gnu/libexec/uucp/libuuconf/hport.c,v 1.6 1999/08/27 23:33:22 peter Exp $";
 #endif
 
-#include <sys/socket.h>
 #include <errno.h>
 #include <ctype.h>
 
@@ -41,7 +39,7 @@ uuconf_hdb_find_port (pglobal, zname, ibaud, ihighbaud, pifn, pinfo, qport)
      pointer pglobal;
      const char *zname;
      long ibaud;
-     long ihighbaud;
+     long ihighbaud ATTRIBUTE_UNUSED;
      int (*pifn) P((struct uuconf_port *, pointer));
      pointer pinfo;
      struct uuconf_port *qport;
@@ -218,19 +216,7 @@ uuconf_hdb_find_port (pglobal, zname, ibaud, ihighbaud, pifn, pinfo, qport)
 		   | UUCONF_RELIABLE_EIGHT | UUCONF_RELIABLE_FULLDUPLEX
 		   | UUCONF_RELIABLE_SPECIFIED);
 	      qport->uuconf_u.uuconf_stcp.uuconf_zport = pzsplit[1];
-
-	      /* I leave with IPv4 only for compatibility reason.  If
-                 you wish to use IPv6, please try Taylor UUCP
-                 configuration instead.  If you still wish to use IPv6
-                 with HDB configuration, re-make with INET6 defined.
-                 In this case, you cannot specify the protocol family
-                 in HDB configuration file.  */
-#ifdef INET6
-	      qport->uuconf_u.uuconf_stcp.uuconf_zfamily = PF_UNSPEC;
-#else
-	      qport->uuconf_u.uuconf_stcp.uuconf_zfamily = PF_INET;
-#endif
-
+	      qport->uuconf_u.uuconf_stcp.uuconf_iversion = 0;
 	      ppzdialer = &qport->uuconf_u.uuconf_stcp.uuconf_pzdialer;
 	    }
 	  else if (ctoks >= 5

@@ -1,7 +1,7 @@
 /* log.c
    Routines to add entries to the log files.
 
-   Copyright (C) 1991, 1992, 1993, 1994, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1994, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -326,35 +325,65 @@ ulog (ttype, zmsg, a, b, c, d, f, g, h, i, j)
 	  zprint = zLogfile;
 #else /* HAVE_HDB_LOGGING */
 	  {
-	    const char *zsys;
-	    char *zbase;
-	    char *zlower;
+	    const char *zcheck;
+	    int cfmt;
 	    char *zfile;
 
-	    /* We want to write to .Log/program/system, e.g.  	
-	       .Log/uucico/uunet.  The system name may not be set.  */
-	    if (zLsystem == NULL)
-	      zsys = "ANY";
+	    /* Only run sprintf if there are no more than two
+               unadorned %s.  If we see any other formatting
+               character, just use zLogfile as is.  This is to protect
+               the UUCP administrator against foolishness.  Note that
+               this has been reported as a security vulnerability, but
+               it is not.  */
+	    cfmt = 0;
+	    for (zcheck = zLogfile; *zcheck != '\0'; ++zcheck)
+	      {
+		if (*zcheck == '%')
+		  {
+		    if (zcheck[1] == 's')
+		      ++cfmt;
+		    else
+		      {
+			cfmt = 3;
+			break;
+		      }
+		  }
+	      }
+
+	    if (cfmt > 2)
+	      zfile = zbufcpy (zLogfile);
 	    else
-	      zsys = zLsystem;
+	      {
+		const char *zsys;
+		char *zbase;
+		char *zlower;
 
-	    zbase = zsysdep_base_name (zProgram);
-	    if (zbase == NULL)
-	      zbase = zbufcpy (zProgram);
+		/* We want to write to .Log/program/system, e.g.
+		   .Log/uucico/uunet.  The system name may not be set.  */
+		if (zLsystem == NULL)
+		  zsys = "ANY";
+		else
+		  zsys = zLsystem;
 
-	    /* On some systems the native uusched will invoke uucico
-	       with an upper case argv[0].  We work around that by
-	       forcing the filename to lower case here.  */
-	    for (zlower = zbase; *zlower != '\0'; zlower++)
-	      if (isupper (*zlower))
-		*zlower = tolower (*zlower);
+		zbase = zsysdep_base_name (zProgram);
+		if (zbase == NULL)
+		  zbase = zbufcpy (zProgram);
 
-	    zfile = zbufalc (strlen (zLogfile)
-			     + strlen (zbase)
-			     + strlen (zsys)
-			     + 1);
-	    sprintf (zfile, zLogfile, zbase, zsys);
-	    ubuffree (zbase);
+		/* On some systems the native uusched will invoke
+		   uucico with an upper case argv[0].  We work around
+		   that by forcing the filename to lower case here.  */
+		for (zlower = zbase; *zlower != '\0'; zlower++)
+		  if (isupper (*zlower))
+		    *zlower = tolower (*zlower);
+
+		zfile = zbufalc (strlen (zLogfile)
+				 + strlen (zbase)
+				 + strlen (zsys)
+				 + 1);
+		sprintf (zfile, zLogfile, zbase, zsys);
+		ubuffree (zbase);
+	      }
+
 	    eLlog = esysdep_fopen (zfile, TRUE, TRUE, TRUE);
 	    if (eLlog != NULL)
 	      ubuffree (zfile);
@@ -624,7 +653,7 @@ ustats (fsucceeded, zuser, zsystem, fsent, cbytes, csecs, cmicros, fcaller)
      long cbytes;
      long csecs;
      long cmicros;
-     boolean fcaller;
+     boolean fcaller ATTRIBUTE_UNUSED;
 {
   long cbps;
 

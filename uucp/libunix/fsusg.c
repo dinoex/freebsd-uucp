@@ -13,7 +13,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
    This file was modified slightly by Ian Lance Taylor, December 1992,
    and again July 1995, for use with Taylor UUCP.  */
@@ -124,7 +124,7 @@ adjust_blocks (blocks, fromsize, tosize)
 
 int
 get_fs_usage (path, disk, fsp)
-     char *path, *disk;
+     char *path, *disk ATTRIBUTE_UNUSED;
      struct fs_usage *fsp;
 {
 #if STAT_NONE

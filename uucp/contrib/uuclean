@@ -12,8 +12,8 @@ $(bindir)/uustat -c rmail -o 48 -N -Q -W"Unable to deliver; will try up to one w
 $(bindir)/uustat -c rmail -o 168 -K -M -N -Q -W"Could not be delivered for over one week"
 # Throw away other requests over a week old
 $(bindir)/uustat -o 168 -K -M -N -Q -W"Over one week old"
-# Throw away any executions over three days old
-$(bindir)/uustat -o 72 -M -N -Q -W"Unable to execute for three days"
+# Warn about any non rmail executions over three days old
+$(bindir)/uustat -o 72 -C rmail -M -N -Q -W"Unable to execute for three days"
 #
 # Now delete any old spool files
 find $(spooldir) -ctime +8 -name '[CDX].*' -print -exec rm -f \{\} \;

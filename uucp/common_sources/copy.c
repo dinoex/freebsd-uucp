@@ -1,7 +1,7 @@
 /* copy.c
    Copy one file to another for the UUCP package.
 
-   Copyright (C) 1991, 1992, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -73,7 +72,7 @@ fcopy_open_file (efrom, zto, fpublic, fmkdirs, fsignals)
 {
   FILE *eto;
   char ab[8192];
-  int c;
+  size_t c;
 
   eto = esysdep_fopen (zto, fpublic, FALSE, fmkdirs);
   if (eto == NULL)
@@ -108,6 +107,13 @@ fcopy_open_file (efrom, zto, fpublic, fmkdirs, fsignals)
   if (fclose (eto) != 0)
     {
       ulog (LOG_ERROR, "fclose: %s", strerror (errno));
+      (void) remove (zto);
+      return FALSE;
+    }
+
+  if (ferror (efrom))
+    {
+      ulog (LOG_ERROR, "fread: %s", strerror (errno));
       (void) remove (zto);
       return FALSE;
     }

@@ -2,7 +2,7 @@
    The pipe port communication routines for Unix.
    Contributed by Marc Boucher <marc@CAM.ORG>.
 
-   Copyright (C) 1993 Ian Lance Taylor
+   Copyright (C) 1993, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -18,10 +18,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -50,7 +49,7 @@ const char pipe_rcsid[] = "$FreeBSD$";
 
 static void uspipe_free P((struct sconnection *qconn));
 static boolean fspipe_open P((struct sconnection *qconn, long ibaud,
-			      boolean fwait));
+			      boolean fwait, boolean fuser));
 static boolean fspipe_close P((struct sconnection *qconn,
 			       pointer puuconf,
 			       struct uuconf_dialer *qdialer,
@@ -116,10 +115,11 @@ uspipe_free (qconn)
 
 /*ARGSUSED*/
 static boolean
-fspipe_open (qconn, ibaud, fwait)
-     struct sconnection *qconn;
-     long ibaud;
+fspipe_open (qconn, ibaud, fwait, fuser)
+     struct sconnection *qconn ATTRIBUTE_UNUSED;
+     long ibaud ATTRIBUTE_UNUSED;
      boolean fwait;
+     boolean fuser ATTRIBUTE_UNUSED;
 {
   /* We don't do incoming waits on pipes.  */
   if (fwait)
@@ -134,9 +134,9 @@ fspipe_open (qconn, ibaud, fwait)
 static boolean
 fspipe_close (qconn, puuconf, qdialer, fsuccess)
      struct sconnection *qconn;
-     pointer puuconf;
-     struct uuconf_dialer *qdialer;
-     boolean fsuccess;
+     pointer puuconf ATTRIBUTE_UNUSED;
+     struct uuconf_dialer *qdialer ATTRIBUTE_UNUSED;
+     boolean fsuccess ATTRIBUTE_UNUSED;
 {
   struct ssysdep_conn *qsysdep;
   boolean fret;
@@ -191,8 +191,8 @@ static boolean
 fspipe_dial (qconn, puuconf, qsys, zphone, qdialer, ptdialer)
      struct sconnection *qconn;
      pointer puuconf;
-     const struct uuconf_system *qsys;
-     const char *zphone;
+     const struct uuconf_system *qsys ATTRIBUTE_UNUSED;
+     const char *zphone ATTRIBUTE_UNUSED;
      struct uuconf_dialer *qdialer;
      enum tdialerfound *ptdialer;
 {

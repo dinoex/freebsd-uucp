@@ -82,6 +82,10 @@
  *        and one for the errors encountered
  *      - reapplied patch by Scott Boyd <scott@futures.com> that I did not
  *        get knowledge of
+ *
+ *      Ed Doolittle <dolittle@math.toronto.edu> - Sun Aug 8 1999
+ *      - shrunk compact summary to fit in 78 characters (time strings only
+ *        require 8 characters, not 9)
  */
 /* Log: uurate.c,v
  * Revision 1.15  1994/04/07  21:47:11  kdburg
@@ -229,6 +233,7 @@ struct Host_entry
 
 extern int optind;                /* GETOPT : Option Index */
 extern char *optarg;            /* GETOPT : Option Value */
+extern int getopt();
 #if ! HAVE_STDLIB_H
    extern pointer *calloc();
 #endif  /* HAVE_STDLIB_H */
@@ -980,7 +985,7 @@ int main(argc, argv)
              if (cur->next == NULL)            /* totals line reached ? */
                 hdrprt('s',1);                 /* print the separator line */
 
-             printf("%-8s %4d %4d %9s %9s %9s %9s %9s %5.0f %5.0f\n",
+             printf("%-8s %4ld %4ld %9s %9s %9s %8s %8s %5.0f %5.0f\n",
                    cur->Hostname, rf, sf,
                    t1, t2, t3, t4, t5,
                    ir, or);
@@ -1028,7 +1033,7 @@ int main(argc, argv)
                     hdrprt('p',0);            /* print the header line(s) */
                     hdr_done = TRUE;
                 }
-                printf("%-8s %3s  %4d %4d %5d %4d    %10d %7d %10d\n",
+                printf("%-8s %3s  %4ld %4ld %5ld %4ld    %10ld %7ld %10ld\n",
                                     type == NULL ? " ":cur->Hostname,
                                     prot->type,
                                     prot->pr_psizemin,
@@ -1072,7 +1077,7 @@ int main(argc, argv)
                          hdrprt('p',1);       /* print the header line(s) */
                          hdr_done = TRUE;
                       }
-                      printf("%-8s %3s  %11d %11d  %11d %11d\n",
+                      printf("%-8s %3s  %11ld %11ld  %11ld %11ld\n",
                                     type == NULL ? " ":cur->Hostname,
                                     prot->type,
                                     prot->pr_eheader,
@@ -1747,13 +1752,13 @@ static void hdrprt(char head, int bot)
              puts("\nCompact summary:");
              puts("----------------");
              puts("\
-Name of  + Files + +------- Bytes/1000 --------+ +------ Time -----+ + Avg CPS +\n\
-site       in  out   inbound  outbound     total   inbound  outbound    in   out\n\
--------- ---- ---- --------- --------- --------- --------- --------- ----- -----");
+Name of  + Files + +------- Bytes/1000 --------+ +----- Time ----+ + Avg CPS +\n\
+site       in  out   inbound  outbound     total  inbound outbound    in   out\n\
+-------- ---- ---- --------- --------- --------- -------- -------- ----- -----");
           }
           else
              puts("\
---------------------------------------------------------------------------------");
+------------------------------------------------------------------------------");
           break;
 
 

@@ -1,7 +1,7 @@
 /* protg.c
    The 'g' protocol.
 
-   Copyright (C) 1991, 1992, 1993, 1994, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1994, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -740,8 +739,8 @@ boolean
 fgsendcmd (qdaemon, z, ilocal, iremote)
      struct sdaemon *qdaemon;
      const char *z;
-     int ilocal;
-     int iremote;
+     int ilocal ATTRIBUTE_UNUSED;
+     int iremote ATTRIBUTE_UNUSED;
 {
   size_t clen;
   boolean fagain;
@@ -858,7 +857,7 @@ fginit_sendbuffers (fallocate)
 /*ARGSUSED*/
 char *
 zggetspace (qdaemon, pclen)
-     struct sdaemon *qdaemon;
+     struct sdaemon *qdaemon ATTRIBUTE_UNUSED;
      size_t *pclen;
 {
   *pclen = iGremote_packsize;
@@ -875,9 +874,9 @@ fgsenddata (qdaemon, zdata, cdata, ilocal, iremote, ipos)
      struct sdaemon *qdaemon;
      char *zdata;
      size_t cdata;
-     int ilocal;
-     int iremote;
-     long ipos;
+     int ilocal ATTRIBUTE_UNUSED;
+     int iremote ATTRIBUTE_UNUSED;
+     long ipos ATTRIBUTE_UNUSED;
 {
   char *z;
   int itt, iseg;

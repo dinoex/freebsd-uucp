@@ -11,7 +11,8 @@ SRCS = access.c addbas.c app3.c app4.c basnam.c bytfre.c corrup.c \
 	serial.c signal.c sindir.c size.c sleep.c spawn.c splcmd.c \
 	splnam.c spool.c srmdir.c statsb.c status.c sync.c tcp.c \
 	time.c tli.c tmpfil.c trunc.c uacces.c ufopen.c uid.c ultspl.c \
-	unknwn.c uuto.c walk.c wldcrd.c work.c xqtfil.c xqtsub.c  ftw.c
+	unknwn.c umode.c uuto.c walk.c wldcrd.c work.c xqtfil.c xqtsub.c \
+	ftw.c
 CFLAGS+=	-I$(.CURDIR)/../common_sources \
 		-DOWNER=\"$(uucpowner)\" -DSBINDIR=\"$(libxdir)\"
 

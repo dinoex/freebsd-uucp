@@ -19,7 +19,7 @@ newconfigdir = $(prefix)/conf/uucp
 # Flags to use when compiling uurate
 CC=gcc -O2
 CFLAGS=-I.. -Wall
-LDFLAGS=-s
+LDFLAGS=-s -lm
 
 SHELL=/bin/sh
 PROGS=uurate

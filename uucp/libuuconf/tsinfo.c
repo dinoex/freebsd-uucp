@@ -1,7 +1,7 @@
 /* tsinfo.c
    Get information about a system from the Taylor UUCP configuration files.
 
-   Copyright (C) 1992, 1993, 1995 Ian Lance Taylor
+   Copyright (C) 1992, 1993, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP uuconf library.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucnfi.h"
@@ -176,6 +175,8 @@ static const struct cmdtab_offset asIcmds[] =
       offsetof (struct uuconf_system, uuconf_zpubdir), NULL },
   { "myname", UUCONF_CMDTABTYPE_STRING,
       offsetof (struct uuconf_system, uuconf_zlocalname), NULL },
+  { "max-file-time", UUCONF_CMDTABTYPE_LONG,
+      offsetof (struct uuconf_system, uuconf_cmax_file_time), NULL },
   { NULL, 0, 0, NULL }
 };
 
@@ -349,11 +350,11 @@ uiset_call (qsys)
 
 static int
 iisystem (pglobal, argc, argv, pvar, pinfo)
-     pointer pglobal;
-     int argc;
-     char **argv;
-     pointer pvar;
-     pointer pinfo;
+     pointer pglobal ATTRIBUTE_UNUSED;
+     int argc ATTRIBUTE_UNUSED;
+     char **argv ATTRIBUTE_UNUSED;
+     pointer pvar ATTRIBUTE_UNUSED;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   return UUCONF_CMDTABRET_EXIT;
 }
@@ -364,9 +365,9 @@ iisystem (pglobal, argc, argv, pvar, pinfo)
 static int
 iialias (pglobal, argc, argv, pvar, pinfo)
      pointer pglobal;
-     int argc;
+     int argc ATTRIBUTE_UNUSED;
      char **argv;
-     pointer pvar;
+     pointer pvar ATTRIBUTE_UNUSED;
      pointer pinfo;
 {
   struct sglobal *qglobal = (struct sglobal *) pglobal;
@@ -392,7 +393,7 @@ iialternate (pglobal, argc, argv, pvar, pinfo)
      pointer pglobal;
      int argc;
      char **argv;
-     pointer pvar;
+     pointer pvar ATTRIBUTE_UNUSED;
      pointer pinfo;
 {
   struct sglobal *qglobal = (struct sglobal *) pglobal;
@@ -459,9 +460,9 @@ iialternate (pglobal, argc, argv, pvar, pinfo)
 static int
 iidefault_alternates (pglobal, argc, argv, pvar, pinfo)
      pointer pglobal;
-     int argc;
+     int argc ATTRIBUTE_UNUSED;
      char **argv;
-     pointer pvar;
+     pointer pvar ATTRIBUTE_UNUSED;
      pointer pinfo;
 {
   struct sglobal *qglobal = (struct sglobal *) pglobal;
@@ -547,10 +548,10 @@ iitimegrade (pglobal, argc, argv, pvar, pinfo)
 static int
 iibaud_range (pglobal, argc, argv, pvar, pinfo)
      pointer pglobal;
-     int argc;
+     int argc ATTRIBUTE_UNUSED;
      char **argv;
      pointer pvar;
-     pointer pinfo;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   struct sglobal *qglobal = (struct sglobal *) pglobal;
   struct uuconf_system *qsys = (struct uuconf_system *) pvar;
@@ -573,7 +574,7 @@ iibaud_range (pglobal, argc, argv, pvar, pinfo)
 static int
 iisize (pglobal, argc, argv, pvar, pinfo)
      pointer pglobal;
-     int argc;
+     int argc ATTRIBUTE_UNUSED;
      char **argv;
      pointer pvar;
      pointer pinfo;
@@ -621,7 +622,7 @@ iiport (pglobal, argc, argv, pvar, pinfo)
      pointer pglobal;
      int argc;
      char **argv;
-     pointer pvar;
+     pointer pvar ATTRIBUTE_UNUSED;
      pointer pinfo;
 {
   struct sglobal *qglobal = (struct sglobal *) pglobal;
@@ -750,11 +751,11 @@ iidebug (pglobal, argc, argv, pvar, pinfo)
 /*ARGSUSED*/
 static int
 iicalled_login (pglobal, argc, argv, pvar, pinfo)
-     pointer pglobal;
+     pointer pglobal ATTRIBUTE_UNUSED;
      int argc;
      char **argv;
      pointer pvar;
-     pointer pinfo;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   char **pz = (char **) pvar;
 
@@ -792,9 +793,9 @@ iiproto_param (pglobal, argc, argv, pvar, pinfo)
 static int
 iirequest (pglobal, argc, argv, pvar, pinfo)
      pointer pglobal;
-     int argc;
+     int argc ATTRIBUTE_UNUSED;
      char **argv;
-     pointer pvar;
+     pointer pvar ATTRIBUTE_UNUSED;
      pointer pinfo;
 {
   struct sglobal *qglobal = (struct sglobal *) pglobal;
@@ -816,9 +817,9 @@ iirequest (pglobal, argc, argv, pvar, pinfo)
 static int
 iitransfer (pglobal, argc, argv, pvar, pinfo)
      pointer pglobal;
-     int argc;
+     int argc ATTRIBUTE_UNUSED;
      char **argv;
-     pointer pvar;
+     pointer pvar ATTRIBUTE_UNUSED;
      pointer pinfo;
 {
   struct sglobal *qglobal = (struct sglobal *) pglobal;
@@ -842,7 +843,7 @@ iiforward (pglobal, argc, argv, pvar, pinfo)
      pointer pglobal;
      int argc;
      char **argv;
-     pointer pvar;
+     pointer pvar ATTRIBUTE_UNUSED;
      pointer pinfo;
 {
   struct sglobal *qglobal = (struct sglobal *) pglobal;
@@ -877,11 +878,11 @@ iiforward (pglobal, argc, argv, pvar, pinfo)
 /*ARGSUSED*/
 static int
 iiunknown (pglobal, argc, argv, pvar, pinfo)
-     pointer pglobal;
-     int argc;
-     char **argv;
-     pointer pvar;
-     pointer pinfo;
+     pointer pglobal ATTRIBUTE_UNUSED;
+     int argc ATTRIBUTE_UNUSED;
+     char **argv ATTRIBUTE_UNUSED;
+     pointer pvar ATTRIBUTE_UNUSED;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   return UUCONF_SYNTAX_ERROR | UUCONF_CMDTABRET_EXIT;
 }

@@ -1,7 +1,7 @@
 /* prote.c
    The 'e' protocol.
 
-   Copyright (C) 1991, 1992, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -99,7 +98,7 @@ festart (qdaemon, pzlog)
 /*ARGSUSED*/
 boolean 
 feshutdown (qdaemon)
-     struct sdaemon *qdaemon;
+     struct sdaemon *qdaemon ATTRIBUTE_UNUSED;
 {
   xfree ((pointer) zEbuf);
   zEbuf = NULL;
@@ -115,8 +114,8 @@ boolean
 fesendcmd (qdaemon, z, ilocal, iremote)
      struct sdaemon *qdaemon;
      const char *z;
-     int ilocal;
-     int iremote;
+     int ilocal ATTRIBUTE_UNUSED;
+     int iremote ATTRIBUTE_UNUSED;
 {
   DEBUG_MESSAGE1 (DEBUG_UUCP_PROTO, "fesendcmd: Sending command \"%s\"", z);
 
@@ -129,7 +128,7 @@ fesendcmd (qdaemon, z, ilocal, iremote)
 /*ARGSUSED*/
 char *
 zegetspace (qdaemon, pclen)
-     struct sdaemon *qdaemon;
+     struct sdaemon *qdaemon ATTRIBUTE_UNUSED;
      size_t *pclen;
 {
   *pclen = CEBUFSIZE;
@@ -146,9 +145,9 @@ fesenddata (qdaemon, zdata, cdata, ilocal, iremote, ipos)
      struct sdaemon *qdaemon;
      char *zdata;
      size_t cdata;
-     int ilocal;
-     int iremote;
-     long ipos;
+     int ilocal ATTRIBUTE_UNUSED;
+     int iremote ATTRIBUTE_UNUSED;
+     long ipos ATTRIBUTE_UNUSED;
 {
 #if DEBUG > 0
   /* Keep track of the number of bytes we send out to make sure it all
@@ -348,7 +347,7 @@ fewait (qdaemon)
 boolean
 fefile (qdaemon, qtrans, fstart, fsend, cbytes, pfhandled)
      struct sdaemon *qdaemon;
-     struct stransfer *qtrans;
+     struct stransfer *qtrans ATTRIBUTE_UNUSED;
      boolean fstart;
      boolean fsend;
      long cbytes;

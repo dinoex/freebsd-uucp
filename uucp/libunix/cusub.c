@@ -1,7 +1,7 @@
 /* cusub.c
    System dependent routines for cu.
 
-   Copyright (C) 1992, 1993, 1995 Ian Lance Taylor
+   Copyright (C) 1992, 1993, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -375,7 +374,7 @@ volatile sig_atomic_t fScu_alarm;
 
 static RETSIGTYPE
 uscu_alarm (isig)
-     int isig;
+     int isig ATTRIBUTE_UNUSED;
 {
 #if ! HAVE_SIGACTION && ! HAVE_SIGVEC && ! HAVE_SIGSET
   (void) signal (isig, uscu_alarm);
@@ -449,7 +448,7 @@ static volatile sig_atomic_t iSsend_sig;
 
 static RETSIGTYPE
 uscu_alarm_kill (isig)
-     int isig;
+     int isig ATTRIBUTE_UNUSED;
 {
 #if ! HAVE_SIGACTION && ! HAVE_SIGVEC && ! HAVE_SIGSET
   (void) signal (isig, uscu_alarm_kill);
@@ -640,7 +639,9 @@ uscu_child (qconn, opipe)
   cwrite = 0;
 
   if (fsysdep_catch ())
-    usysdep_start_catch ();
+    {
+      usysdep_start_catch ();
+    }
 
   while (TRUE)
     {

@@ -1,7 +1,7 @@
 /* cu.c
    Call up a remote system.
 
-   Copyright (C) 1992, 1993, 1994, 1995 Ian Lance Taylor
+   Copyright (C) 1992, 1993, 1994, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -180,6 +179,7 @@ struct sconninfo
 {
   boolean fmatched;
   boolean flocked;
+  boolean fdirect;
   struct sconnection *qconn;
   const char *zline;
 };
@@ -378,10 +378,10 @@ main (argc, argv)
 
 	case 'v':
 	  /* Print version and exit.  */
-	  fprintf
-	    (stderr,
-	     "%s: Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995 Ian Lance Taylor\n",
-	     zProgram, VERSION);
+	  printf ("cu (Taylor UUCP) %s\n", VERSION);
+	  printf ("Copyright (C) 1991, 92, 93, 94, 1995, 2002 Ian Lance Taylor\n");
+	  printf ("This program is free software; you may redistribute it under the terms of\n");
+	  printf ("the GNU General Public LIcense.  This program has ABSOLUTELY NO WARRANTY.\n");
 	  exit (EXIT_SUCCESS);
 	  /*NOTREACHED*/
 
@@ -560,6 +560,7 @@ main (argc, argv)
 	 have read and write access to the port.  */
       sinfo.fmatched = FALSE;
       sinfo.flocked = FALSE;
+      sinfo.fdirect = qsys == NULL && zphone == NULL;
       sinfo.qconn = &sconn;
       sinfo.zline = zline;
       if (zport != NULL || zline != NULL || ibaud != 0L)
@@ -602,7 +603,7 @@ main (argc, argv)
 	      if (! fconn_init (&sport, &sconn, UUCONF_PORTTYPE_UNKNOWN))
 		ucuabort ();
 
-	      if (! fconn_lock (&sconn, FALSE))
+	      if (! fconn_lock (&sconn, FALSE, TRUE))
 		ulog (LOG_FATAL, "%s: Line in use", zline);
 
 	      qCuconn = &sconn;
@@ -628,7 +629,7 @@ main (argc, argv)
 		  if (fconn_init (qsys->uuconf_qport, &sconn,
 				  UUCONF_PORTTYPE_UNKNOWN))
 		    {
-		      if (fconn_lock (&sconn, FALSE))
+		      if (fconn_lock (&sconn, FALSE, FALSE))
 			{
 			  qCuconn = &sconn;
 			  break;
@@ -681,7 +682,7 @@ main (argc, argv)
 	}
 
       /* Here we have locked a connection to use.  */
-      if (! fconn_open (&sconn, iusebaud, ihighbaud, FALSE))
+      if (! fconn_open (&sconn, iusebaud, ihighbaud, FALSE, sinfo.fdirect))
 	ucuabort ();
 
       fCuclose_conn = TRUE;
@@ -830,49 +831,30 @@ ucuusage ()
 static void
 ucuhelp ()
 {
-  fprintf (stderr,
-	   "Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995 Ian Lance Taylor\n",
-	   VERSION);
-  fprintf (stderr,
-	   "Usage: %s [options] [system or phone-number]\n", zProgram);
-  fprintf (stderr,
-	   " -a,-p,--port port: Use named port\n");
-  fprintf (stderr,
-	   " -l,--line line: Use named device (e.g. tty0)\n");
-  fprintf (stderr,
-	   " -s,--speed,--baud speed, -#: Use given speed\n");
-  fprintf (stderr,
-	   " -c,--phone phone: Phone number to call\n");
-  fprintf (stderr,
-	   " -z,--system system: System to call\n");
-  fprintf (stderr,
-	   " -e: Set even parity\n");
-  fprintf (stderr,
-	   " -o: Set odd parity\n");
-  fprintf (stderr,
-	   " --parity={odd,even}: Set parity\n");
-  fprintf (stderr,
-	   " -E,--escape char: Set escape character\n");
-  fprintf (stderr,
-	   " -h,--halfduplex: Echo locally\n");
-  fprintf (stderr,
-	   " --nostop: Turn off XON/XOFF handling\n");
-  fprintf (stderr,
-	   " -t,--mapcr: Map carriage return to carriage return/linefeed\n");
-  fprintf (stderr,
-	   " -n,--prompt: Prompt for phone number\n");
-  fprintf (stderr,
-	   " -d: Set maximum debugging level\n");
-  fprintf (stderr,
-	   " -x,--debug debug: Set debugging type\n");
+  printf ("Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995, 2002 Ian Lance Taylor\n",
+	  VERSION);
+  printf ("Usage: %s [options] [system or phone-number]\n", zProgram);
+  printf (" -a,-p,--port port: Use named port\n");
+  printf (" -l,--line line: Use named device (e.g. tty0)\n");
+  printf (" -s,--speed,--baud speed, -#: Use given speed\n");
+  printf (" -c,--phone phone: Phone number to call\n");
+  printf (" -z,--system system: System to call\n");
+  printf (" -e: Set even parity\n");
+  printf (" -o: Set odd parity\n");
+  printf (" --parity={odd,even}: Set parity\n");
+  printf (" -E,--escape char: Set escape character\n");
+  printf (" -h,--halfduplex: Echo locally\n");
+  printf (" --nostop: Turn off XON/XOFF handling\n");
+  printf (" -t,--mapcr: Map carriage return to carriage return/linefeed\n");
+  printf (" -n,--prompt: Prompt for phone number\n");
+  printf (" -d: Set maximum debugging level\n");
+  printf (" -x,--debug debug: Set debugging type\n");
 #if HAVE_TAYLOR_CONFIG
-  fprintf (stderr,
-	   " -I,--config file: Set configuration file to use\n");
+  printf (" -I,--config file: Set configuration file to use\n");
 #endif /* HAVE_TAYLOR_CONFIG */
-  fprintf (stderr,
-	   " -v,--version: Print version and exit\n");
-  fprintf (stderr,
-	   " --help: Print help and exit\n");
+  printf (" -v,--version: Print version and exit\n");
+  printf (" --help: Print help and exit\n");
+  printf ("Report bugs to taylor-uucp@gnu.org\n");
 }
 
 /* This function is called when a fatal error occurs.  */
@@ -973,7 +955,7 @@ icuport_lock (qport, pinfo)
 
   if (! fconn_init (qport, q->qconn, UUCONF_PORTTYPE_UNKNOWN))
     return UUCONF_NOT_FOUND;
-  else if (! fconn_lock (q->qconn, FALSE))
+  else if (! fconn_lock (q->qconn, FALSE, q->fdirect))
     {
       uconn_free (q->qconn);
       return UUCONF_NOT_FOUND;
@@ -1258,11 +1240,11 @@ fcuset_var (puuconf, zline)
 /*ARGSUSED*/
 static int
 icuunrecogvar (puuconf, argc, argv, pvar, pinfo)
-     pointer puuconf;
-     int argc;
+     pointer puuconf ATTRIBUTE_UNUSED;
+     int argc ATTRIBUTE_UNUSED;
      char **argv;
-     pointer pvar;
-     pointer pinfo;
+     pointer pvar ATTRIBUTE_UNUSED;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   char abescape[5];
 
@@ -1425,11 +1407,11 @@ fcudo_subcmd (puuconf, qconn, zline)
 /*ARGSUSED*/
 static int
 icuunrecogfn (puuconf, argc, argv, pvar, pinfo)
-     pointer puuconf;
-     int argc;
+     pointer puuconf ATTRIBUTE_UNUSED;
+     int argc ATTRIBUTE_UNUSED;
      char **argv;
-     pointer pvar;
-     pointer pinfo;
+     pointer pvar ATTRIBUTE_UNUSED;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   char abescape[5];
 
@@ -1453,10 +1435,10 @@ icuunrecogfn (puuconf, argc, argv, pvar, pinfo)
 /*ARGSUSED*/
 static int
 icubreak (puuconf, argc, argv, pvar, pinfo)
-     pointer puuconf;
-     int argc;
-     char **argv;
-     pointer pvar;
+     pointer puuconf ATTRIBUTE_UNUSED;
+     int argc ATTRIBUTE_UNUSED;
+     char **argv ATTRIBUTE_UNUSED;
+     pointer pvar ATTRIBUTE_UNUSED;
      pointer pinfo;
 {
   struct sconnection *qconn = (struct sconnection *) pinfo;
@@ -1471,11 +1453,11 @@ icubreak (puuconf, argc, argv, pvar, pinfo)
 /*ARGSUSED*/
 static int
 icuchdir (puuconf, argc, argv, pvar, pinfo)
-     pointer puuconf;
+     pointer puuconf ATTRIBUTE_UNUSED;
      int argc;
      char **argv;
-     pointer pvar;
-     pointer pinfo;
+     pointer pvar ATTRIBUTE_UNUSED;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   const char *zarg;
 
@@ -1492,11 +1474,11 @@ icuchdir (puuconf, argc, argv, pvar, pinfo)
 /*ARGSUSED*/
 static int
 icudebug (puuconf, argc, argv, pvar, pinfo)
-     pointer puuconf;
-     int argc;
-     char **argv;
-     pointer pvar;
-     pointer pinfo;
+     pointer puuconf ATTRIBUTE_UNUSED;
+     int argc ATTRIBUTE_UNUSED;
+     char **argv ATTRIBUTE_UNUSED;
+     pointer pvar ATTRIBUTE_UNUSED;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
 #if DEBUG > 1
   if (iDebug != 0)
@@ -1515,9 +1497,9 @@ icudebug (puuconf, argc, argv, pvar, pinfo)
 /*ARGSUSED*/
 static int
 icunostop (puuconf, argc, argv, pvar, pinfo)
-     pointer puuconf;
-     int argc;
-     char **argv;
+     pointer puuconf ATTRIBUTE_UNUSED;
+     int argc ATTRIBUTE_UNUSED;
+     char **argv ATTRIBUTE_UNUSED;
      pointer pvar;
      pointer pinfo;
 {
@@ -1541,7 +1523,7 @@ icunostop (puuconf, argc, argv, pvar, pinfo)
 /*ARGSUSED*/
 static int
 icuput (puuconf, argc, argv, pvar, pinfo)
-     pointer puuconf;
+     pointer puuconf ATTRIBUTE_UNUSED;
      int argc;
      char **argv;
      pointer pvar;
@@ -1753,7 +1735,7 @@ icuput (puuconf, argc, argv, pvar, pinfo)
 /*ARGSUSED*/
 static int
 icutake (puuconf, argc, argv, pvar, pinfo)
-     pointer puuconf;
+     pointer puuconf ATTRIBUTE_UNUSED;
      int argc;
      char **argv;
      pointer pvar;

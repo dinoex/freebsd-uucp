@@ -1,7 +1,7 @@
 /* reliab.c
    Subroutines to handle reliability commands for ports and dialers.
 
-   Copyright (C) 1992 Ian Lance Taylor
+   Copyright (C) 1992, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP uuconf library.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucnfi.h"
@@ -37,10 +36,10 @@ const char _uuconf_reliab_rcsid[] = "$FreeBSD$";
 int
 _uuconf_iseven_bit (pglobal,argc, argv, pvar, pinfo)
      pointer pglobal;
-     int argc;
+     int argc ATTRIBUTE_UNUSED;
      char **argv;
      pointer pvar;
-     pointer pinfo;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   struct sglobal *qglobal = (struct sglobal *) pglobal;
   int *pi = (int *) pvar;
@@ -68,10 +67,10 @@ _uuconf_iseven_bit (pglobal,argc, argv, pvar, pinfo)
 int
 _uuconf_ireliable (pglobal, argc, argv, pvar, pinfo)
      pointer pglobal;
-     int argc;
+     int argc ATTRIBUTE_UNUSED;
      char **argv;
      pointer pvar;
-     pointer pinfo;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   struct sglobal *qglobal = (struct sglobal *) pglobal;
   int *pi = (int *) pvar;
@@ -99,10 +98,10 @@ _uuconf_ireliable (pglobal, argc, argv, pvar, pinfo)
 int
 _uuconf_ihalf_duplex (pglobal, argc, argv, pvar, pinfo)
      pointer pglobal;
-     int argc;
+     int argc ATTRIBUTE_UNUSED;
      char **argv;
      pointer pvar;
-     pointer pinfo;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   struct sglobal *qglobal = (struct sglobal *) pglobal;
   int *pi = (int *) pvar;

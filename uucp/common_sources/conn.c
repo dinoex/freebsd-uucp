@@ -1,7 +1,7 @@
 /* conn.c
    Connection routines for the Taylor UUCP package.
 
-   Copyright (C) 1991, 1992, 1993, 1994 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1994, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -85,16 +84,17 @@ uconn_free (qconn)
 /* Lock a connection.   */
 
 boolean
-fconn_lock (qconn, fin)
+fconn_lock (qconn, fin, fuser)
      struct sconnection *qconn;
      boolean fin;
+     boolean fuser;
 {
-  boolean (*pflock) P((struct sconnection *, boolean));
+  boolean (*pflock) P((struct sconnection *, boolean, boolean));
 
   pflock = qconn->qcmds->pflock;
   if (pflock == NULL)
     return TRUE;
-  return (*pflock) (qconn, fin);
+  return (*pflock) (qconn, fin, fuser);
 }
 
 /* Unlock a connection.  */
@@ -114,11 +114,12 @@ fconn_unlock (qconn)
 /* Open a connection.  */
 
 boolean
-fconn_open (qconn, ibaud, ihighbaud, fwait)
+fconn_open (qconn, ibaud, ihighbaud, fwait, fuser)
      struct sconnection *qconn;
      long ibaud;
      long ihighbaud;
      boolean fwait;
+     boolean fuser;
 {
   boolean fret;
 
@@ -176,7 +177,7 @@ fconn_open (qconn, ibaud, ihighbaud, fwait)
   else
     ulog_device (qconn->qport->uuconf_zname);
 
-  fret = (*qconn->qcmds->pfopen) (qconn, ibaud, fwait);
+  fret = (*qconn->qcmds->pfopen) (qconn, ibaud, fwait, fuser);
 
   if (! fret)
     ulog_device ((const char *) NULL);

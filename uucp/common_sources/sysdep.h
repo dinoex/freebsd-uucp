@@ -1,7 +1,7 @@
-/* sysh.unx -*- C -*-
+/* sysdep.h -*- C -*-
    The header file for the UNIX system dependent routines.
 
-   Copyright (C) 1991, 1992, 1993, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,15 +17,14 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
-#ifndef SYSH_UNX_H
+#ifndef SYSDEP_H
 
-#define SYSH_UNX_H
+#define SYSDEP_H
 
 #if ANSI_C
 /* These structures are used in prototypes but are not defined in this
@@ -475,12 +474,12 @@ extern boolean fsuser_access P((const struct stat *, int imode,
 				const char *zuser));
 
 /* Switch to the permissions of the invoking user.  This sets the
-   argument to a value to pass to fsuucp_perms.  */
-extern boolean fsuser_perms P((uid_t *));
+   arguments to values to pass to fsuucp_perms.  */
+extern boolean fsuser_perms P((uid_t *, gid_t *));
 
 /* Switch back to the permissions of the UUCP user ID.  This should be
-   passed the value returned by fsuser_perms in its argument.  */
-extern boolean fsuucp_perms P((long));
+   passed the values returned by fsuser_perms in its arguments.  */
+extern boolean fsuucp_perms P((long, long));
 
 /* Stick two directories and a file name together.  */
 extern char *zsappend3 P((const char *zdir1, const char *zdir2,
@@ -526,7 +525,7 @@ extern int dup2 P((int oold, int onew));
 #if ! HAVE_FTW
 extern int ftw P((const char *zdir,
 		  int (*pfn) P((const char *zfile,
-				struct stat *qstat,
+				const struct stat *qstat,
 				int iflag)),
 		  int cdescriptors));
 #endif
@@ -560,4 +559,4 @@ extern const char *zSlockdir;
 /* The local UUCP name (needed for some spool directory stuff).  */
 extern const char *zSlocalname;
 
-#endif /* ! defined (SYSH_UNX_H) */
+#endif /* ! defined (SYSDEP_H) */

@@ -1,7 +1,7 @@
 /* uucp.h
    Header file for the UUCP package.
 
-   Copyright (C) 1991, 1992, 1993, 1994, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1994, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 /* Get the system configuration parameters.  */
@@ -138,6 +137,60 @@ typedef const char *constpointer;
 #ifndef __GNUC__
 #define __inline__
 #endif
+
+/* Some boilerplate code to permit using gcc attributes while
+   supporting older versions of gcc and also other compilers.  */
+
+/* This macro simplifies testing whether we are using gcc, and if it
+   is of a particular minimum version. (Both major & minor numbers are
+   significant.)  This macro will evaluate to 0 if we are not using
+   gcc at all.  */
+#ifndef GCC_VERSION
+#define GCC_VERSION (__GNUC__ * 1000 + __GNUC_MINOR__)
+#endif /* GCC_VERSION */
+
+/* Define macros for some gcc attributes.  This permits us to use the
+   macros freely, and know that they will come into play for the
+   version of gcc in which they are supported.  */
+
+#if (GCC_VERSION < 2007)
+# define __attribute__(x)
+#endif
+
+/* Attribute __malloc__ on functions was valid as of gcc 2.96. */
+#ifndef ATTRIBUTE_MALLOC
+# if (GCC_VERSION >= 2096)
+#  define ATTRIBUTE_MALLOC __attribute__ ((__malloc__))
+# else
+#  define ATTRIBUTE_MALLOC
+# endif /* GNUC >= 2.96 */
+#endif /* ATTRIBUTE_MALLOC */
+
+/* Attributes on labels were valid as of gcc 2.93. */
+#ifndef ATTRIBUTE_UNUSED_LABEL
+# if (GCC_VERSION >= 2093)
+#  define ATTRIBUTE_UNUSED_LABEL ATTRIBUTE_UNUSED
+# else
+#  define ATTRIBUTE_UNUSED_LABEL
+# endif /* GNUC >= 2.93 */
+#endif /* ATTRIBUTE_UNUSED_LABEL */
+
+#ifndef ATTRIBUTE_UNUSED
+#define ATTRIBUTE_UNUSED __attribute__ ((__unused__))
+#endif /* ATTRIBUTE_UNUSED */
+
+#ifndef ATTRIBUTE_NORETURN
+#define ATTRIBUTE_NORETURN __attribute__ ((__noreturn__))
+#endif /* ATTRIBUTE_NORETURN */
+
+#ifndef ATTRIBUTE_PRINTF
+#define ATTRIBUTE_PRINTF(m, n) __attribute__ ((__format__ (__printf__, m, n)))
+#define ATTRIBUTE_PRINTF_1 ATTRIBUTE_PRINTF(1, 2)
+#define ATTRIBUTE_PRINTF_2 ATTRIBUTE_PRINTF(2, 3)
+#define ATTRIBUTE_PRINTF_3 ATTRIBUTE_PRINTF(3, 4)
+#define ATTRIBUTE_PRINTF_4 ATTRIBUTE_PRINTF(4, 5)
+#define ATTRIBUTE_PRINTF_5 ATTRIBUTE_PRINTF(5, 6)
+#endif /* ATTRIBUTE_PRINTF */
 
 /* Get the string functions, which are used throughout the code.  */
 #if HAVE_MEMORY_H

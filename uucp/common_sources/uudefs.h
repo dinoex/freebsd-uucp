@@ -1,7 +1,7 @@
 /* uudefs.h
    Miscellaneous definitions for the UUCP package.
 
-   Copyright (C) 1991, 1992, 1993, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #if ANSI_C
@@ -276,6 +275,20 @@ extern boolean fin_directory_list P((const char *zfile,
 
 /* Parse a command string.  */
 extern boolean fparse_cmd P((char *zcmd, struct scmd *qcmd));
+
+/* Return whether a command needs quoting.  */
+extern boolean fcmd_needs_quotes P((const struct scmd *qcmd));
+
+/* Quote the strings in a command, creating a new command.  */
+extern void uquote_cmd P((const struct scmd *qorig, struct scmd *qnew));
+
+/* Free a command structure created by uquote_cmd.  */
+extern void ufree_quoted_cmd P((struct scmd *qcmd));
+
+/* Backslash qoute a string, returning a newly allocated string.  If
+   fbackslashonly, only quote backslashes.  Otherwise, quote
+   backslashes and all nonprinting characters.  */
+extern char *zquote_cmd_string P((const char *zorig, boolean fbackslashonly));
 
 /* Make a log entry.  */
 #ifdef __GNUC__

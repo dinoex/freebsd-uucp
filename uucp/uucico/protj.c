@@ -1,7 +1,7 @@
 /* protj.c
    The 'j' protocol.
 
-   Copyright (C) 1992, 1994 Ian Lance Taylor
+   Copyright (C) 1992, 1994, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -154,7 +153,7 @@ fjstart (qdaemon, pzlog)
   int b;
   size_t cbuf, cgot;
   char *zbuf;
-  int i;
+  size_t i;
 
   /* Send the characters we want to avoid to the other side.  */
   clen = strlen (zJavoid_parameter);
@@ -499,7 +498,7 @@ fjreceive_data (qconn, cineed, pcrec, ctimeout, freport)
       if (cnew < 0)
 	cnew += CRECBUFLEN;
 
-      if (cnew > cineed)
+      if ((size_t) cnew > cineed)
 	cineed = 0;
       else
 	cineed -= cnew;

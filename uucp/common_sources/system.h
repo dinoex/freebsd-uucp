@@ -2,7 +2,7 @@
    Header file for system dependent stuff in the Taylor UUCP package.
    This file is not itself system dependent.
 
-   Copyright (C) 1991, 1992, 1993, 1994, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1994, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -18,10 +18,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #ifndef SYSTEM_H
@@ -300,26 +299,29 @@ extern boolean fsysdep_has_work P((const struct uuconf_system *qsys));
 /* Initialize the work scan.  This will be called before
    fsysdep_get_work.  The bgrade argument is the minimum grade of
    execution files that should be considered (e.g. a bgrade of 'd'
-   will allow all grades from 'A' to 'Z' and 'a' to 'd').  This
+   will allow all grades from 'A' to 'Z' and 'a' to 'd').  The cmax
+   argument is the maximum number of items to return in calls to
+   fsysdep_get_work; a value of 0 means there is no limit.  This
    function should return FALSE on error.  */
 extern boolean fsysdep_get_work_init P((const struct uuconf_system *qsys,
-					int bgrade));
+					int bgrade, unsigned int cmax));
 
 /* Get the next command to be executed for a remote system.  The
-   bgrade argument will be the same as for fsysdep_get_work_init;
-   probably only one of these functions will use it, namely the
-   function for which it is more convenient.  This should return FALSE
-   on error.  The structure pointed to by qcmd should be filled in.
-   The strings may point into a static buffer; they will be copied out
-   if necessary.  If there is no more work, this should set qcmd->bcmd
-   to 'H' and return TRUE.  This should set qcmd->pseq to something
-   which can be passed to fsysdep_did_work to remove the job from the
-   queue when it has been completed.  This may set qcmd->bcmd to 'P'
-   to represent a poll file; the main code will just pass the pseq
-   element of such a structure to fsysdep_did_work if the system is
-   called.  */
+   bgrade and cmax arguments will be the same as for
+   fsysdep_get_work_init; probably only one of these functions will
+   use them, namely the function for which it is more convenient.
+   This should return FALSE on error.  The structure pointed to by
+   qcmd should be filled in.  The strings may point into a static
+   buffer; they will be copied out if necessary.  If there is no more
+   work, this should set qcmd->bcmd to 'H' and return TRUE.  This
+   should set qcmd->pseq to something which can be passed to
+   fsysdep_did_work to remove the job from the queue when it has been
+   completed.  This may set qcmd->bcmd to 'P' to represent a poll
+   file; the main code will just pass the pseq element of such a
+   structure to fsysdep_did_work if the system is called.  */
 extern boolean fsysdep_get_work P((const struct uuconf_system *qsys,
-				   int bgrade, struct scmd *qcmd));
+				   int bgrade, unsigned int cmax,
+				   struct scmd *qcmd));
 
 /* Remove a job from the work queue.  This must also remove the
    temporary file used for a send command, if there is one.  It should
@@ -532,10 +534,13 @@ extern boolean fsysdep_wildcard_end P((void));
    in the pascmds array, which has ccmds entries.  The function should
    return NULL on error, or the jobid on success.  The jobid is a
    string that may be printed or passed to fsysdep_kill_job and
-   related functions, but is otherwise uninterpreted.  */
+   related functions, but is otherwise uninterpreted.  If pftemp is
+   not NULL, then on an error return, *pftemp will be TRUE for a
+   temporary error, FALSE for a permanent error.  */
 extern char *zsysdep_spool_commands P((const struct uuconf_system *qsys,
 				       int bgrade, int ccmds,
-				       const struct scmd *pascmds));
+				       const struct scmd *pascmds,
+				       boolean *pftemp));
 
 /* Get a file name to use for a data file to be copied to another
    system.  The ztname, zdname and zxname arguments will all either be
@@ -686,22 +691,20 @@ extern boolean fsysdep_lock_uuxqt_dir P((int ilock));
    should return FALSE on error.  */
 extern boolean fsysdep_unlock_uuxqt_dir P((int ilock));
 
-/* Move files into or out of the execution directory.  The code will
-   already have checked that all the files exist.  The elements in the
-   pzfrom array will be complete filenames, and the elements in the
+/* Copy files into the execution directory indicated by ilock.  The
+   code will already have checked that all the files exist.  The
+   copying may be done using the link system call.  The elements in
+   the pzfrom array will be complete filenames.  The elements in the
    pzto array will be either NULL (in which case the file should not
-   be moved) or simple base names.  If fto is TRUE, the files in
-   pzfrom should be moved to pzto; otherwise, the files in pzto should
-   be moved to pzfrom (this is used if a temporary failure occurs, in
-   which case the execution will be retried later).  If pzinput and
-   *pzinput are not NULL, then it is the name of the standard input
-   file; if it is the same as any element of pzfrom, then *pzinput
-   should be set to the zbufcpy of the corresponding pzto value, if
+   be copied) or simple base names.  If pzinput and *pzinput are not
+   NULL, then *pzinput is the name of the standard input file; if it
+   is the same as any element of pzfrom, then *pzinput will be set to
+   the zbufcpy of the full path for the corresponding pzto value, if
    any.  */
-extern boolean fsysdep_move_uuxqt_files P((int cfiles,
+extern boolean fsysdep_copy_uuxqt_files P((int cfiles,
 					   const char *const *pzfrom,
 					   const char *const *pzto,
-					   boolean fto, int ilock,
+					   int ilock,
 					   char **pzinput));
 
 /* Expand a file name on the local system, defaulting to the current
@@ -738,6 +741,11 @@ extern char *zsysdep_in_dir P((const char *zdir, const char *zfile));
 /* Get the mode of a file.  This should return a Unix style file mode.
    It should return 0 on error.  */
 extern unsigned int ixsysdep_file_mode P((const char *zfile));
+
+/* Get the mode of a file using the permissions of the user who
+   invoked the program.  This should return a Unix style file mode.
+   It should return 0 on error.  */
+extern unsigned int ixsysdep_user_file_mode P((const char *zfile));
 
 /* See whether the user has access to a file.  This is called by uucp
    and uux to prevent copying of a file which uucp can read but the

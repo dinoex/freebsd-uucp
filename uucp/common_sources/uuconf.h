@@ -1,7 +1,7 @@
 /* uuconf.h
    Header file for UUCP configuration routines.
 
-   Copyright (C) 1992, 1993, 1994, 1995 Ian Lance Taylor
+   Copyright (C) 1992, 1993, 1994, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP uuconf library.
 
@@ -17,7 +17,7 @@
 
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
    The use of an object file which uses material from this header
    file, and from no other portion of the uuconf library, is
@@ -25,8 +25,7 @@
    of the GNU Library General Public License (this sentence is merely
    informative, and does not modify the License in any way).
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 /* $FreeBSD$ */
@@ -86,7 +85,7 @@ struct uuconf_chat
      hold a program to run).  */
   char **uuconf_pzchat;
   /* The chat program to run.  This is a NULL terminated list of
-     arguments; element 0 if the program.  May be NULL, in which case
+     arguments; element 0 is the program.  May be NULL, in which case
      there is no program.  */
   char **uuconf_pzprogram;
   /* The timeout in seconds to use for expect strings in the chat
@@ -335,6 +334,10 @@ struct uuconf_system
   /* The local name to use for this remote system.  May be NULL if the
      usual local name should be used.  */
   char *uuconf_zlocalname;
+  /* The maximum number of seconds to spend sending one file when
+     there are other files to send when using a protocol which permits
+     interrupting a file send.  This is zero if there is no limit.  */
+  long uuconf_cmax_file_time;
   /* Memory allocation block for the system.  */
   UUCONF_POINTER uuconf_palloc;
 };
@@ -419,8 +422,9 @@ struct uuconf_tcp_port
   /* The TCP port number to use.  May be a name or a number.  May be
      NULL, in which case "uucp" is looked up using getservbyname.  */
   char *uuconf_zport;
-  /* Address family to use for a TCP connection.  */
-  int uuconf_zfamily;
+  /* The IP version number to use.  This is 0 for any, 4 for IPv4, 6
+     for IPv6.  */
+  int uuconf_iversion;
   /* A NULL terminated sequence of dialer/token pairs (element 0 is a
      dialer name, element 1 is a token, etc.)  May be NULL.  */
   char **uuconf_pzdialer;
@@ -528,6 +532,44 @@ struct uuconf_dialer
   int uuconf_ireliable;
   /* Memory allocation block for the dialer.  */
   UUCONF_POINTER uuconf_palloc;
+};
+
+/* Information returned by uuconf_config_files.  Any field in this
+   struct may be NULL, indicating that the corresponding files will
+   not be read.  */
+
+struct uuconf_config_file_names
+{
+  /* Taylor UUCP config file name.  */
+  UUCONF_CONST char *uuconf_ztaylor_config;
+  /* Taylor UUCP sys file names; NULL terminated.  */
+  UUCONF_CONST char * UUCONF_CONST *uuconf_pztaylor_sys;
+  /* Taylor UUCP port file names; NULL terminated.  */
+  UUCONF_CONST char * UUCONF_CONST *uuconf_pztaylor_port;
+  /* Taylor UUCP dial file names; NULL terminated.  */
+  UUCONF_CONST char * UUCONF_CONST *uuconf_pztaylor_dial;
+  /* UUCP dialcode file names; NULL terminated.  */
+  UUCONF_CONST char * UUCONF_CONST *uuconf_pzdialcode;
+  /* Taylor UUCP passwd file names; NULL terminated.  */
+  UUCONF_CONST char * UUCONF_CONST *uuconf_pztaylor_pwd;
+  /* Taylor UUCP call file names; NULL terminated.  */
+  UUCONF_CONST char * UUCONF_CONST *uuconf_pztaylor_call;
+  /* V2 system file name.  */
+  UUCONF_CONST char *uuconf_zv2_systems;
+  /* V2 device file name.  */
+  UUCONF_CONST char *uuconf_zv2_device;
+  /* V2 user permissions file name.  */
+  UUCONF_CONST char *uuconf_zv2_userfile;
+  /* V2 user permitted commands file name.  */
+  UUCONF_CONST char *uuconf_zv2_cmds;
+  /* HDB system file names; NULL terminated.  */
+  UUCONF_CONST char * UUCONF_CONST *uuconf_pzhdb_systems;
+  /* HDB device file names; NULL terminated.  */
+  UUCONF_CONST char * UUCONF_CONST *uuconf_pzhdb_devices;
+  /* HDB dialer file names; NULL terminated.  */
+  UUCONF_CONST char * UUCONF_CONST *uuconf_pzhdb_dialers;
+  /* HDB permissions file name.  */
+  UUCONF_CONST char *uuconf_zhdb_permissions;
 };
 
 /* Reliability bits for the ireliable field of ports and dialers.
@@ -825,6 +867,11 @@ extern int uuconf_dialer_free (void *uuconf_pglobal,
   (uuconf_free_block ((q)->uuconf_palloc), UUCONF_SUCCESS)
 #endif
 
+/* Get the configuration file names.  The fields in the returned
+   struct should not be freed.  */
+extern int uuconf_config_files (void *uuconf_pglobal,
+				struct uuconf_config_file_names* uuconf_names);
+
 /* Get the local node name.  If the node name is not specified
    (because no ``nodename'' command appeared in the config file) this
    will return UUCONF_NOT_FOUND, and some system dependent function
@@ -972,6 +1019,7 @@ extern int uuconf_port_free ();
 extern int uuconf_dialer_names ();
 extern int uuconf_dialer_info ();
 extern int uuconf_dialer_free ();
+extern int uuconf_config_files ();
 extern int uuconf_localname ();
 extern int uuconf_login_localname ();
 extern int uuconf_spooldir ();

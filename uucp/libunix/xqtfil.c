@@ -1,7 +1,7 @@
 /* xqtfil.c
    Routines to read execute files.
 
-   Copyright (C) 1991, 1992, 1993, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -142,7 +141,7 @@ fsysdep_get_xqt_init (zsystem)
 /*ARGSUSED*/
 char *
 zsysdep_get_xqt (zsystem, pzsystem, pferr)
-     const char *zsystem;
+     const char *zsystem ATTRIBUTE_UNUSED;
      char **pzsystem;
      boolean *pferr;
 {
@@ -276,7 +275,7 @@ zsysdep_get_xqt (zsystem, pzsystem, pferr)
 /*ARGSUSED*/
 void
 usysdep_get_xqt_free (zsystem)
-     const char *zsystem;
+     const char *zsystem ATTRIBUTE_UNUSED;
 {
   if (qSxqt_topdir != NULL)
     {

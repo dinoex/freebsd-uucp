@@ -1,7 +1,7 @@
 /* proty.c
    The 'y' protocol.
 
-   Copyright (C) 1994, 1995 Jorge Cwik and Ian Lance Taylor
+   Copyright (C) 1994, 1995, 2002, 2003 Jorge Cwik and Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,7 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
+
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -128,6 +130,7 @@ struct uuconf_cmdtab asYproto_params[] =
 
 /* Local functions.  */
 
+static boolean fyxchg_syncs P((struct sdaemon *qdaemon));
 static boolean fywait_for_packet P((struct sdaemon *qdaemon,
 				    boolean *pfexit));
 static unsigned short iychecksum P((const char *z, size_t c));
@@ -146,7 +149,7 @@ static boolean fyread_data P((struct sdaemon *qdaemon, size_t clen,
 
 static boolean
 fyxchg_syncs (qdaemon)
-     struct sdaemon *qdaemon;
+     struct sdaemon *qdaemon ATTRIBUTE_UNUSED;
 {
   char inithdr[Y_INIT_HDR_LEN];
   unsigned short header[3];
@@ -251,7 +254,7 @@ fystart (qdaemon, pzlog)
 
 boolean 
 fyshutdown (qdaemon)
-     struct sdaemon *qdaemon;
+     struct sdaemon *qdaemon ATTRIBUTE_UNUSED;
 {
   xfree ((pointer) zYbuf);
   zYbuf = NULL;
@@ -268,8 +271,8 @@ boolean
 fysendcmd (qdaemon, z, ilocal, iremote)
      struct sdaemon *qdaemon;
      const char *z;
-     int ilocal;
-     int iremote;
+     int ilocal ATTRIBUTE_UNUSED;
+     int iremote ATTRIBUTE_UNUSED;
 {
   size_t clen;
 
@@ -300,7 +303,7 @@ fysendcmd (qdaemon, z, ilocal, iremote)
 
 char *
 zygetspace (qdaemon, pclen)
-     struct sdaemon *qdaemon;
+     struct sdaemon *qdaemon ATTRIBUTE_UNUSED;
      size_t *pclen;
 {
   *pclen = iYremote_packsize;
@@ -314,9 +317,9 @@ fysenddata (qdaemon, zdata, cdata, ilocal, iremote, ipos)
      struct sdaemon *qdaemon;
      char *zdata;
      size_t cdata;
-     int ilocal;
-     int iremote;
-     long ipos;
+     int ilocal ATTRIBUTE_UNUSED;
+     int iremote ATTRIBUTE_UNUSED;
+     long ipos ATTRIBUTE_UNUSED;
 {
 #if DEBUG > 0
   if (cdata > iYremote_packsize)
@@ -357,10 +360,10 @@ fywait (qdaemon)
 boolean
 fyfile (qdaemon, qtrans, fstart, fsend, cbytes, pfhandled)
      struct sdaemon *qdaemon;
-     struct stransfer *qtrans;
+     struct stransfer *qtrans ATTRIBUTE_UNUSED;
      boolean fstart;
      boolean fsend;
-     long cbytes;
+     long cbytes ATTRIBUTE_UNUSED;
      boolean *pfhandled;
 {
   unsigned short header[3];
@@ -454,20 +457,20 @@ fyread_data (qdaemon, clen, timeout)
   if (cinbuf < 0)
     cinbuf += CRECBUFLEN;
 
-  if (cinbuf < clen)
+  if ((size_t) cinbuf < clen)
     {
       if (! freceive_data (qdaemon->qconn, clen - cinbuf, &crec,
 			   timeout, TRUE))
 	return FALSE;
       cinbuf += crec;
-      if (cinbuf < clen)
+      if ((size_t) cinbuf < clen)
 	{
 	  if (! freceive_data (qdaemon->qconn, clen - cinbuf, &crec,
 			       timeout, TRUE))
 	    return FALSE;
 	}
       cinbuf += crec;
-      if (cinbuf < clen)
+      if ((size_t) cinbuf < clen)
 	{
 	  ulog (LOG_ERROR, "Timed out waiting for data");
 	  return FALSE;

@@ -1,7 +1,7 @@
 /* tstuu.c
    Test the uucp package on a UNIX system.
 
-   Copyright (C) 1991, 1992, 1993, 1994, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1994, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -644,7 +643,7 @@ main (argc, argv)
 
 static RETSIGTYPE
 uchild (isig)
-     int isig;
+     int isig ATTRIBUTE_UNUSED;
 {
   struct tms sbase, s1, s2;
 
@@ -1379,7 +1378,7 @@ cread (o, pqbuf)
       int cgot;
 
       if (*pqbuf != NULL
-	  && (*pqbuf)->cend >= sizeof (*pqbuf)->ab)
+	  && (size_t) (*pqbuf)->cend >= sizeof (*pqbuf)->ab)
 	pqbuf = &(*pqbuf)->qnext;
 
       if (*pqbuf == NULL)

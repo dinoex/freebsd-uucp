@@ -1,7 +1,7 @@
 /* chat.c
    Chat routine for the UUCP package.
 
-   Copyright (C) 1991, 1992, 1993, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -490,7 +489,7 @@ fcsend_debug (fquote, clen, zbuf)
     }
   else
     {
-      int i;
+      size_t i;
 
       if (! fquote)
 	ulog (LOG_DEBUG_CONTINUE, " \"");
@@ -878,12 +877,6 @@ fcsend (qconn, puuconf, z, qsys, qdial, zphone, ftranslate, fstrip)
 		}
 	      break;
 	    case 'M':
-	      if (qdial == NULL)
-		{
-		  ucsend_debug_end (fquote, TRUE);
-		  ulog (LOG_ERROR, "Illegal use of \\M");
-		  return FALSE;
-		}
 	      fquote = fcsend_debug (fquote, (size_t) 0, "ignore-carrier");
 	      if (! fconn_carrier (qconn, FALSE))
 		{
@@ -892,13 +885,7 @@ fcsend (qconn, puuconf, z, qsys, qdial, zphone, ftranslate, fstrip)
 		}
 	      break;
 	    case 'm':
-	      if (qdial == NULL)
-		{
-		  ucsend_debug_end (fquote, TRUE);
-		  ulog (LOG_ERROR, "Illegal use of \\m");
-		  return FALSE;
-		}
-	      if (qdial->uuconf_fcarrier)
+	      if (qdial == NULL || qdial->uuconf_fcarrier)
 		{
 		  fquote = fcsend_debug (fquote, (size_t) 0, "need-carrier");
 		  if (! fconn_carrier (qconn, TRUE))

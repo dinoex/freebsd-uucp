@@ -1,7 +1,7 @@
 /* vsinfo.c
    Get information about a system from the V2 configuration files.
 
-   Copyright (C) 1992, 1993, 1995 Ian Lance Taylor
+   Copyright (C) 1992, 1993, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP uuconf library.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucnfi.h"
@@ -29,7 +28,6 @@
 const char _uuconf_vsinfo_rcsid[] = "$FreeBSD: src/gnu/libexec/uucp/libuuconf/vsinfo.c,v 1.7 1999/08/27 23:33:37 peter Exp $";
 #endif
 
-#include <sys/socket.h>
 #include <errno.h>
 #include <ctype.h>
 
@@ -272,19 +270,7 @@ _uuconf_iv2_system_internal (qglobal, zsystem, qsys)
 	  else
 	    qset->uuconf_qport->uuconf_u.uuconf_stcp.uuconf_zport
 	      = pzsplit[3];
-
-	  /* I leave with IPv4 only for compatibility reason.  If you
-	     wish to use IPv6, please try Taylor UUCP configuration
-	     instead.  If you still wish to use IPv6 with V2
-	     configuration, re-make with INET6 defined.  In this case,
-	     you cannot specify the protocol family in V2
-	     configuration file.  */
-#ifdef INET6
-	  qset->uuconf_qport->uuconf_u.uuconf_stcp.uuconf_zfamily = PF_UNSPEC;
-#else
-	  qset->uuconf_qport->uuconf_u.uuconf_stcp.uuconf_zfamily = PF_INET;
-#endif
-
+	  qset->uuconf_qport->uuconf_u.uuconf_stcp.uuconf_iversion = 0;
 	  qset->uuconf_qport->uuconf_u.uuconf_stcp.uuconf_pzdialer = NULL;
 	}
 

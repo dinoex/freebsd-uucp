@@ -1,7 +1,7 @@
 /* rec.c
    Routines to receive a file.
 
-   Copyright (C) 1991, 1992, 1993, 1994, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1994, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -304,6 +303,9 @@ flocal_rec_send_request (qtrans, qdaemon)
 {
   struct srecinfo *qinfo = (struct srecinfo *) qtrans->pinfo;
   long cbytes, cbytes2;
+  boolean fquote;
+  const struct scmd *qcmd;
+  struct scmd squoted;
   size_t clen;
   char *zsend;
   boolean fret;
@@ -342,28 +344,43 @@ flocal_rec_send_request (qtrans, qdaemon)
       && (cbytes == -1 || qdaemon->clocal_size < cbytes))
     cbytes = qdaemon->clocal_size;
 
+  fquote = fcmd_needs_quotes (&qtrans->s);
+  if (! fquote)
+    qcmd = &qtrans->s;
+  else
+    {
+      if ((qdaemon->ifeatures & FEATURE_QUOTES) == 0)
+	return flocal_rec_fail (qtrans, &qtrans->s, qdaemon->qsys,
+				"remote system does not support required quoting");
+      uquote_cmd (&qtrans->s, &squoted);
+      qcmd = &squoted;
+    }
+
   /* We send the string
      R from to user options
 
      We put a dash in front of options.  If we are talking to a
      counterpart, we also send the maximum size file we are prepared
      to accept, as returned by esysdep_open_receive.  */
-  clen = (strlen (qtrans->s.zfrom) + strlen (qtrans->s.zto)
-	  + strlen (qtrans->s.zuser) + strlen (qtrans->s.zoptions) + 30);
+  clen = (strlen (qcmd->zfrom) + strlen (qcmd->zto)
+	  + strlen (qcmd->zuser) + strlen (qcmd->zoptions) + 30);
   zsend = zbufalc (clen);
   if ((qdaemon->ifeatures & FEATURE_SIZES) == 0)
-    sprintf (zsend, "R %s %s %s -%s", qtrans->s.zfrom, qtrans->s.zto,
-	     qtrans->s.zuser, qtrans->s.zoptions);
+    sprintf (zsend, "R %s %s %s -%s", qcmd->zfrom, qcmd->zto,
+	     qcmd->zuser, qcmd->zoptions);
   else if ((qdaemon->ifeatures & FEATURE_V103) == 0)
-    sprintf (zsend, "R %s %s %s -%s 0x%lx", qtrans->s.zfrom, qtrans->s.zto,
-	     qtrans->s.zuser, qtrans->s.zoptions, (unsigned long) cbytes);
+    sprintf (zsend, "R %s %s %s -%s 0x%lx", qcmd->zfrom, qcmd->zto,
+	     qcmd->zuser, qcmd->zoptions, (unsigned long) cbytes);
   else
-    sprintf (zsend, "R %s %s %s -%s %ld", qtrans->s.zfrom, qtrans->s.zto,
-	     qtrans->s.zuser, qtrans->s.zoptions, cbytes);
+    sprintf (zsend, "R %s %s %s -%s %ld", qcmd->zfrom, qcmd->zto,
+	     qcmd->zuser, qcmd->zoptions, cbytes);
 
   fret = (*qdaemon->qproto->pfsendcmd) (qdaemon, zsend, qtrans->ilocal,
 					qtrans->iremote);
   ubuffree (zsend);
+
+  if (fquote)
+    ufree_quoted_cmd (&squoted);
 
   /* There is a potential space leak here: if pfsendcmd fails, we
      might need to free qtrans.  However, it is possible that by the
@@ -384,7 +401,7 @@ flocal_rec_await_reply (qtrans, qdaemon, zdata, cdata)
      struct stransfer *qtrans;
      struct sdaemon *qdaemon;
      const char *zdata;
-     size_t cdata;
+     size_t cdata ATTRIBUTE_UNUSED;
 {
   struct srecinfo *qinfo = (struct srecinfo *) qtrans->pinfo;
   const char *zlog;
@@ -481,11 +498,8 @@ flocal_rec_await_reply (qtrans, qdaemon, zdata, cdata)
 
       if (! (*qdaemon->qproto->pffile) (qdaemon, qtrans, TRUE, FALSE,
 					(long) -1, &fhandled))
-	{
-	  (void) ffileclose (qtrans->e);
-	  return flocal_rec_fail (qtrans, &qtrans->s, qdaemon->qsys,
-				  (const char *) NULL);
-	}
+	return flocal_rec_fail (qtrans, &qtrans->s, qdaemon->qsys,
+				(const char *) NULL);
       if (fhandled)
 	return TRUE;
     }
@@ -805,6 +819,7 @@ fremote_send_reply (qtrans, qdaemon)
 				       qtrans->iremote))
     {
       (void) ffileclose (qtrans->e);
+      qtrans->e = EFILECLOSED;
       (void) remove (qinfo->ztemp);
       /* Should probably free qtrans here, but see the comment at the
          end of flocal_rec_send_request.  */
@@ -818,7 +833,6 @@ fremote_send_reply (qtrans, qdaemon)
       if (! (*qdaemon->qproto->pffile) (qdaemon, qtrans, TRUE, FALSE,
 					(long) -1, &fhandled))
 	{
-	  (void) ffileclose (qtrans->e);
 	  (void) remove (qinfo->ztemp);
 	  urrec_free (qtrans);
 	  return FALSE;
@@ -927,8 +941,8 @@ fremote_send_fail_send (qtrans, qdaemon)
 static boolean
 fremote_discard (qtrans, qdaemon, zdata, cdata)
      struct stransfer *qtrans;
-     struct sdaemon *qdaemon;
-     const char *zdata;
+     struct sdaemon *qdaemon ATTRIBUTE_UNUSED;
+     const char *zdata ATTRIBUTE_UNUSED;
      size_t cdata;
 {
   struct srecfailinfo *qinfo = (struct srecfailinfo *) qtrans->pinfo;
@@ -960,8 +974,8 @@ static boolean
 frec_file_end (qtrans, qdaemon, zdata, cdata)
      struct stransfer *qtrans;
      struct sdaemon *qdaemon;
-     const char *zdata;
-     size_t cdata;
+     const char *zdata ATTRIBUTE_UNUSED;
+     size_t cdata ATTRIBUTE_UNUSED;
 {
   struct srecinfo *qinfo = (struct srecinfo *) qtrans->pinfo;
   char *zalc;
@@ -979,7 +993,6 @@ frec_file_end (qtrans, qdaemon, zdata, cdata)
       if (! (*qdaemon->qproto->pffile) (qdaemon, qtrans, FALSE, FALSE,
 					(long) -1, &fhandled))
 	{
-	  (void) ffileclose (qtrans->e);
 	  (void) remove (qinfo->ztemp);
 	  urrec_free (qtrans);
 	  return FALSE;
@@ -998,6 +1011,7 @@ frec_file_end (qtrans, qdaemon, zdata, cdata)
     {
       zerr = strerror (errno);
       (void) ffileclose (qtrans->e);
+      qtrans->e = EFILECLOSED;
       (void) remove (qinfo->ztemp);
     }
   else if (! ffileclose (qtrans->e))
@@ -1005,76 +1019,81 @@ frec_file_end (qtrans, qdaemon, zdata, cdata)
       zerr = strerror (errno);
       ulog (LOG_ERROR, "%s: close: %s", qtrans->s.zto, zerr);
       (void) remove (qinfo->ztemp);
-    }
-  else if (! fsysdep_move_file (qinfo->ztemp, qinfo->zfile, qinfo->fspool,
-				FALSE, ! qinfo->fspool,
-				(qinfo->flocal
-				 ? qtrans->s.zuser
-				 : (const char *) NULL)))
-    {
-      long cspace;
-
-      /* Keep the temporary file if there is 1.5 times the amount of
-	 required free space.  This is just a random guess, to make an
-	 unusual situtation potentially less painful.  */
-      cspace = csysdep_bytes_free (qinfo->ztemp);
-      if (cspace == -1)
-	cspace = FREE_SPACE_DELTA;
-      cspace -= (qdaemon->qsys->uuconf_cfree_space
-		 + qdaemon->qsys->uuconf_cfree_space / 2);
-      if (cspace < 0)
-	{
-	  (void) remove (qinfo->ztemp);
-	  zerr = "could not move to final location";
-	}
-      else
-	{
-	  const char *az[20];
-	  int i;
-
-	  zalc = zbufalc (sizeof "could not move to final location (left as )"
-			  + strlen (qinfo->ztemp));
-	  sprintf (zalc, "could not move to final location (left as %s)",
-		   qinfo->ztemp);
-	  zerr = zalc;
-
-	  i = 0;
-	  az[i++] = "The file\n\t";
-	  az[i++] = qinfo->ztemp;
-	  az[i++] =
-	    "\nwas saved because the move to the final location failed.\n";
-	  az[i++] = "See the UUCP logs for more details.\n";
-	  az[i++] = "The file transfer was from\n\t";
-	  az[i++] = qdaemon->qsys->uuconf_zname;
-	  az[i++] = "!";
-	  az[i++] = qtrans->s.zfrom;
-	  az[i++] = "\nto\n\t";
-	  az[i++] = qtrans->s.zto;
-	  az[i++] = "\nand was requested by\n\t";
-	  az[i++] = qtrans->s.zuser;
-	  az[i++] = "\n";
-	  (void) fsysdep_mail (OWNER, "UUCP temporary file saved", i, az);
-	}
-      ulog (LOG_ERROR, "%s: %s", qinfo->zfile, zerr);
-      fnever = TRUE;
+      qtrans->e = EFILECLOSED;
     }
   else
     {
-      if (! qinfo->fspool)
+      qtrans->e = EFILECLOSED;
+      if (! fsysdep_move_file (qinfo->ztemp, qinfo->zfile, qinfo->fspool,
+			       FALSE, ! qinfo->fspool,
+			       (qinfo->flocal
+				? qtrans->s.zuser
+				: (const char *) NULL)))
 	{
-	  unsigned int imode;
+	  long cspace;
 
-	  /* Unless we can change the ownership of the file, the only
-	     choice to make about these bits is whether to set the
-	     execute bit or not.  */
-	  if ((qtrans->s.imode & 0111) != 0)
-	    imode = 0777;
+	  /* Keep the temporary file if there is 1.5 times the amount
+	     of required free space.  This is just a random guess, to
+	     make an unusual situtation potentially less painful.  */
+	  cspace = csysdep_bytes_free (qinfo->ztemp);
+	  if (cspace == -1)
+	    cspace = FREE_SPACE_DELTA;
+	  cspace -= (qdaemon->qsys->uuconf_cfree_space
+		     + qdaemon->qsys->uuconf_cfree_space / 2);
+	  if (cspace < 0)
+	    {
+	      (void) remove (qinfo->ztemp);
+	      zerr = "could not move to final location";
+	    }
 	  else
-	    imode = 0666;
-	  (void) fsysdep_change_mode (qinfo->zfile, imode);
+	    {
+	      const char *az[20];
+	      int i;
+
+	      zalc = zbufalc (sizeof "could not move to final location (left as )"
+			      + strlen (qinfo->ztemp));
+	      sprintf (zalc, "could not move to final location (left as %s)",
+		       qinfo->ztemp);
+	      zerr = zalc;
+
+	      i = 0;
+	      az[i++] = "The file\n\t";
+	      az[i++] = qinfo->ztemp;
+	      az[i++] =
+		"\nwas saved because the move to the final location failed.\n";
+	      az[i++] = "See the UUCP logs for more details.\n";
+	      az[i++] = "The file transfer was from\n\t";
+	      az[i++] = qdaemon->qsys->uuconf_zname;
+	      az[i++] = "!";
+	      az[i++] = qtrans->s.zfrom;
+	      az[i++] = "\nto\n\t";
+	      az[i++] = qtrans->s.zto;
+	      az[i++] = "\nand was requested by\n\t";
+	      az[i++] = qtrans->s.zuser;
+	      az[i++] = "\n";
+	      (void) fsysdep_mail (OWNER, "UUCP temporary file saved", i, az);
+	    }
+	  ulog (LOG_ERROR, "%s: %s", qinfo->zfile, zerr);
+	  fnever = TRUE;
 	}
+      else
+	{
+	  if (! qinfo->fspool)
+	    {
+	      unsigned int imode;
+
+	      /* Unless we can change the ownership of the file, the
+		 only choice to make about these bits is whether to
+		 set the execute bit or not.  */
+	      if ((qtrans->s.imode & 0111) != 0)
+		imode = 0777;
+	      else
+		imode = 0666;
+	      (void) fsysdep_change_mode (qinfo->zfile, imode);
+	    }
   
-      zerr = NULL;
+	  zerr = NULL;
+	}
     }
 
   ustats (zerr == NULL, qtrans->s.zuser, qdaemon->qsys->uuconf_zname,
@@ -1169,18 +1188,52 @@ frec_file_end (qtrans, qdaemon, zdata, cdata)
 	  return FALSE;
 	}
 
-      fprintf (e, "U %s %s\n", qtrans->s.zuser, qdaemon->qsys->uuconf_zname);
-      fprintf (e, "F %s\n", qtrans->s.zto);
-      fprintf (e, "I %s\n", qtrans->s.zto);
+      if (! fcmd_needs_quotes (&qtrans->s))
+	{
+	  fprintf (e, "U %s %s\n", qtrans->s.zuser,
+		   qdaemon->qsys->uuconf_zname);
+	  fprintf (e, "F %s\n", qtrans->s.zto);
+	  fprintf (e, "I %s\n", qtrans->s.zto);
+	  if (strchr (qtrans->s.zoptions, 'R') != NULL)
+	    fprintf (e, "R %s\n", qtrans->s.znotify);
+	  fprintf (e, "C %s\n", qtrans->s.zcmd);
+	}
+      else
+	{
+	  char *z1;
+	  char *z2;
+
+	  fprintf (e, "Q\n");
+
+	  z1 = zquote_cmd_string (qtrans->s.zuser, FALSE);
+	  z2 = zquote_cmd_string (qdaemon->qsys->uuconf_zname, FALSE);
+	  fprintf (e, "U %s %s\n", z1, z2);
+	  ubuffree (z1);
+	  ubuffree (z2);
+
+	  z1 = zquote_cmd_string (qtrans->s.zto, FALSE);
+	  fprintf (e, "F %s\n", z1);
+	  fprintf (e, "I %s\n", z1);
+	  ubuffree (z1);
+
+	  if (strchr (qtrans->s.zoptions, 'R') != NULL)
+	    {
+	      z1 = zquote_cmd_string (qtrans->s.znotify, FALSE);
+	      fprintf (e, "R %s\n", z1);
+	      ubuffree (z1);
+	    }
+
+	  z1 = zquote_cmd_string (qtrans->s.zcmd, TRUE);
+	  fprintf (e, "C %s\n", z1);
+	  ubuffree (z1);
+	}
+
       if (strchr (qtrans->s.zoptions, 'N') != NULL)
 	fprintf (e, "N\n");
       if (strchr (qtrans->s.zoptions, 'Z') != NULL)
 	fprintf (e, "Z\n");
-      if (strchr (qtrans->s.zoptions, 'R') != NULL)
-	fprintf (e, "R %s\n", qtrans->s.znotify);
       if (strchr (qtrans->s.zoptions, 'e') != NULL)
 	fprintf (e, "e\n");
-      fprintf (e, "C %s\n", qtrans->s.zcmd);
 
       fbad = FALSE;
 

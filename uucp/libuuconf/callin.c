@@ -1,7 +1,7 @@
 /* callin.c
    Check a login name and password against the UUCP password file.
 
-   Copyright (C) 1992, 1993, 1995 Ian Lance Taylor
+   Copyright (C) 1992, 1993, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP uuconf library.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucnfi.h"
@@ -174,10 +173,10 @@ uuconf_callin (pglobal, pcmpfn, pinfo)
 
 static int
 ipcheck (pglobal, argc, argv, pvar, pinfo)
-     pointer pglobal;
+     pointer pglobal ATTRIBUTE_UNUSED;
      int argc;
      char **argv;
-     pointer pvar;
+     pointer pvar ATTRIBUTE_UNUSED;
      pointer pinfo;
 {
   struct sinfo *q = (struct sinfo *) pinfo;

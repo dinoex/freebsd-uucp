@@ -1,7 +1,7 @@
 /* rdperm.c
    Read the HDB Permissions file.
 
-   Copyright (C) 1992, 1993 Ian Lance Taylor
+   Copyright (C) 1992, 1993, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP uuconf library.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucnfi.h"
@@ -308,10 +307,10 @@ _uuconf_ihread_permissions (qglobal)
 static int
 ihcolon (pglobal, argc, argv, pvar, pinfo)
      pointer pglobal;
-     int argc;
+     int argc ATTRIBUTE_UNUSED;
      char **argv;
      pointer pvar;
-     pointer pinfo;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   struct sglobal *qglobal = (struct sglobal *) pglobal;
   char ***ppz = (char ***) pvar;
@@ -366,11 +365,11 @@ ihcolon (pglobal, argc, argv, pvar, pinfo)
 /*ARGSUSED*/
 static int
 ihsendfiles (pglobal, argc, argv, pvar, pinfo)
-     pointer pglobal;
-     int argc;
+     pointer pglobal ATTRIBUTE_UNUSED;
+     int argc ATTRIBUTE_UNUSED;
      char **argv;
      pointer pvar;
-     pointer pinfo;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   int *pi = (int *) pvar;
 
@@ -399,11 +398,11 @@ ihsendfiles (pglobal, argc, argv, pvar, pinfo)
 /*ARGSUSED*/
 static int
 ihunknownperm (pglobal, argc, argv, pvar, pinfo)
-     pointer pglobal;
-     int argc;
-     char **argv;
-     pointer pvar;
-     pointer pinfo;
+     pointer pglobal ATTRIBUTE_UNUSED;
+     int argc ATTRIBUTE_UNUSED;
+     char **argv ATTRIBUTE_UNUSED;
+     pointer pvar ATTRIBUTE_UNUSED;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   return UUCONF_SYNTAX_ERROR | UUCONF_CMDTABRET_EXIT;
 }

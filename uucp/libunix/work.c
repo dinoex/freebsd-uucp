@@ -1,7 +1,7 @@
 /* work.c
    Routines to read command files.
 
-   Copyright (C) 1991, 1992, 1993, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -56,11 +55,6 @@ static int iswork_cmp P((constpointer pkey, constpointer pdatum));
 /* These functions can support multiple actions going on at once.
    This allows the UUCP package to send and receive multiple files at
    the same time.  */
-
-/* To avoid wasting a lot of time scanning the spool directory, which
-   might cause the remote system to time out, we limit each scan to
-   pick up at most a certain number of files.  */
-#define COMMANDS_PER_SCAN (200)
 
 /* The ssfilename structure holds the name of a work file, as well as
    its grade.  */
@@ -141,7 +135,7 @@ zswork_directory (zsystem)
 /*ARGSUSED*/
 static boolean
 fswork_file (zsystem, zfile, pbgrade)
-     const char *zsystem;
+     const char *zsystem ATTRIBUTE_UNUSED;
      const char *zfile;
      char *pbgrade;
 {
@@ -282,9 +276,10 @@ fsysdep_has_work (qsys)
 #define CWORKFILES (10)
 
 boolean
-fsysdep_get_work_init (qsys, bgrade)
+fsysdep_get_work_init (qsys, bgrade, cmax)
      const struct uuconf_system *qsys;
      int bgrade;
+     unsigned int cmax;
 {
   char *zdir;
   DIR *qdir;
@@ -398,14 +393,14 @@ fsysdep_get_work_init (qsys, bgrade)
 	      asSwork_files[cSwork_files].zfile = zname;
 	      asSwork_files[cSwork_files].bgrade = bfilegrade;
 	      ++cSwork_files;
-	      if (cSwork_files - chad > COMMANDS_PER_SCAN)
+	      if (cmax != 0 && cSwork_files - chad > cmax)
 		break;
 	    }
 	}
 
 #if SPOOLDIR_SVR4
       closedir (qdir);
-      if (cSwork_files - chad > COMMANDS_PER_SCAN)
+      if (cmax != 0 && cSwork_files - chad > cmax)
 	break;
     }
   qdir = qgdir;
@@ -433,9 +428,10 @@ fsysdep_get_work_init (qsys, bgrade)
 
 /*ARGSUSED*/
 boolean
-fsysdep_get_work (qsys, bgrade, qcmd)
+fsysdep_get_work (qsys, bgrade, cmax, qcmd)
      const struct uuconf_system *qsys;
-     int bgrade;
+     int bgrade ATTRIBUTE_UNUSED;
+     unsigned int cmax ATTRIBUTE_UNUSED;
      struct scmd *qcmd;
 {
   char *zdir;
@@ -671,7 +667,7 @@ fsysdep_did_work (pseq)
 /*ARGSUSED*/
 void
 usysdep_get_work_free (qsys)
-     const struct uuconf_system *qsys;
+     const struct uuconf_system *qsys ATTRIBUTE_UNUSED;
 {
   if (asSwork_files != NULL)
     {
@@ -714,7 +710,7 @@ zsysdep_save_temp_file (pseq)
   char *zto, *zslash;
   size_t cwant;
   static char *zbuf;
-  static int cbuf;
+  static size_t cbuf;
 
   if (! fsysdep_file_exists (qline->ztemp))
     return NULL;

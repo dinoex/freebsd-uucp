@@ -1,7 +1,7 @@
 /* tportc.c
    Handle a Taylor UUCP port command.
 
-   Copyright (C) 1992, 1993 Ian Lance Taylor
+   Copyright (C) 1992, 1993, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP uuconf library.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucnfi.h"
@@ -29,7 +28,6 @@
 const char _uuconf_tportc_rcsid[] = "$FreeBSD: src/gnu/libexec/uucp/libuuconf/tportc.c,v 1.7 1999/08/27 23:33:34 peter Exp $";
 #endif
 
-#include <sys/socket.h>
 #include <errno.h>
 
 static int ipproto_param P((pointer pglobal, int argc, char **argv,
@@ -37,8 +35,6 @@ static int ipproto_param P((pointer pglobal, int argc, char **argv,
 static int ipbaud_range P((pointer pglobal, int argc, char **argv,
 			   pointer pvar, pointer pinfo));
 static int ipdialer P((pointer pglobal, int argc, char **argv, pointer pvar,
-		       pointer pinfo));
-static int ipfamily P((pointer pglobal, int argc, char **argv, pointer pvar,
 		       pointer pinfo));
 static int ipcunknown P((pointer pglobal, int argc, char **argv,
 			 pointer pvar, pointer pinfo));
@@ -154,9 +150,9 @@ static const struct cmdtab_offset asPtcp_cmds[] =
   { "service", UUCONF_CMDTABTYPE_STRING,
       offsetof (struct uuconf_port, uuconf_u.uuconf_stcp.uuconf_zport),
       NULL },
-  { "family", UUCONF_CMDTABTYPE_FN | 0,
-      offsetof (struct uuconf_port, uuconf_u.uuconf_stcp.uuconf_zfamily),
-      ipfamily },
+  { "version", UUCONF_CMDTABTYPE_INT,
+      offsetof (struct uuconf_port, uuconf_u.uuconf_stcp.uuconf_iversion),
+      NULL },
   { "dialer-sequence", UUCONF_CMDTABTYPE_FULLSTRING,
       offsetof (struct uuconf_port, uuconf_u.uuconf_stcp.uuconf_pzdialer),
       NULL },
@@ -224,7 +220,7 @@ _uuconf_iport_cmd (qglobal, argc, argv, qport)
   const struct cmdtab_offset *qcmds;
   size_t ccmds;
   struct uuconf_cmdtab as[CCMDS];
-  int i;
+  size_t i;
   int iret;
 
   fgottype = strcasecmp (argv[0], "type") == 0;
@@ -285,7 +281,7 @@ _uuconf_iport_cmd (qglobal, argc, argv, qport)
 	  break;
 	case UUCONF_PORTTYPE_TCP:
 	  qport->uuconf_u.uuconf_stcp.uuconf_zport = (char *) "uucp";
-	  qport->uuconf_u.uuconf_stcp.uuconf_zfamily = PF_UNSPEC;
+	  qport->uuconf_u.uuconf_stcp.uuconf_iversion = 0;
 	  qport->uuconf_u.uuconf_stcp.uuconf_pzdialer = NULL;
 	  qport->uuconf_ireliable = (UUCONF_RELIABLE_SPECIFIED
 				     | UUCONF_RELIABLE_ENDTOEND
@@ -392,10 +388,10 @@ ipproto_param (pglobal, argc, argv, pvar, pinfo)
 static int
 ipbaud_range (pglobal, argc, argv, pvar, pinfo)
      pointer pglobal;
-     int argc;
+     int argc ATTRIBUTE_UNUSED;
      char **argv;
      pointer pvar;
-     pointer pinfo;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   struct sglobal *qglobal = (struct sglobal *) pglobal;
   struct uuconf_modem_port *qmodem = (struct uuconf_modem_port *) pvar;
@@ -496,46 +492,17 @@ ipdialer (pglobal, argc, argv, pvar, pinfo)
       return iret;
     }
 }
-
-/* Handle a "family" commands.  The first argument is "inet" for
-   PF_INET or "inet6" for PF_INET6 */
-
-/*ARGSUSED*/
-static int
-ipfamily (pglobal, argc, argv, pvar, pinfo)
-     pointer pglobal;
-     int argc;
-     char **argv;
-     pointer pvar;
-     pointer pinfo;
-{
-  int *pzfamily = (int *) pvar;
-
-  if (argc < 2)
-    return UUCONF_SYNTAX_ERROR | UUCONF_CMDTABRET_EXIT;
-  if (!strcmp(argv[1], "inet"))
-    *pzfamily = PF_INET;
-#if HAVE_GETADDRINFO
-  else if (!strcmp(argv[1], "inet6"))
-    *pzfamily = PF_INET6;
-#endif
-  else if (!strcmp(argv[1], "inet46"))
-    *pzfamily = PF_UNSPEC;
-  else
-    return UUCONF_SYNTAX_ERROR | UUCONF_CMDTABRET_EXIT;
-  return UUCONF_CMDTABRET_KEEP;
-}
 
 /* Give an error for an unknown port command.  */
 
 /*ARGSUSED*/
 static int
 ipcunknown (pglobal, argc, argv, pvar, pinfo)
-     pointer pglobal;
-     int argc;
-     char **argv;
-     pointer pvar;
-     pointer pinfo;
+     pointer pglobal ATTRIBUTE_UNUSED;
+     int argc ATTRIBUTE_UNUSED;
+     char **argv ATTRIBUTE_UNUSED;
+     pointer pvar ATTRIBUTE_UNUSED;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   return UUCONF_SYNTAX_ERROR | UUCONF_CMDTABRET_EXIT;
 }

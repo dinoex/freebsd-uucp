@@ -1,7 +1,7 @@
 /* seq.c
    Get and increment the conversation sequence number for a system.
 
-   Copyright (C) 1991, 1992, 1993 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -51,7 +50,11 @@ ixsysdep_get_sequence (qsys)
   /* This will only be called when the system is locked anyhow, so there
      is no need to use a separate lock for the conversation sequence
      file.  */
+#if SPOOLDIR_HDB || SPOOLDIR_SVR4
+  zname = zsysdep_in_dir (".SQFILE", qsys->uuconf_zname);
+#else
   zname = zsysdep_in_dir (".Sequence", qsys->uuconf_zname);
+#endif
 
   iseq = 0;
   if (stat (zname, &s) == 0)

@@ -1,7 +1,7 @@
 /* vsnams.c
    Get all known system names from the V2 configuration files.
 
-   Copyright (C) 1992, 1995 Ian Lance Taylor
+   Copyright (C) 1992, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP uuconf library.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucnfi.h"
@@ -40,7 +39,7 @@ int
 uuconf_v2_system_names (pglobal, ppzsystems, falias)
      pointer pglobal;
      char ***ppzsystems;
-     int falias;
+     int falias ATTRIBUTE_UNUSED;
 {
   struct sglobal *qglobal = (struct sglobal *) pglobal;
   FILE *e;

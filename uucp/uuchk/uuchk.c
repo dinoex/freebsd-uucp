@@ -1,7 +1,7 @@
 /* uuchk.c
    Display what we think the permissions of systems are.
 
-   Copyright (C) 1991, 1992, 1993, 1994, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1994, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -37,6 +36,7 @@ const char uuchk_rcsid[] = "$FreeBSD$";
 
 static void ukusage P((void));
 static void ukhelp P((void));
+static void ukshow_names P((const char *zheader, const char * const *pznames));
 static void ukshow P((const struct uuconf_system *qsys,
 		      pointer puuconf));
 static int ikshow_port P((struct uuconf_port *qport, pointer pinfo));
@@ -113,8 +113,10 @@ main (argc, argv)
 
 	case 'v':
 	  /* Print version and exit.  */
-	  printf ("%s: Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995 Ian Lance Taylor\n",
-		  zKprogram, VERSION);
+	  printf ("uuchk (Taylor UUCP) %s\n", VERSION);
+	  printf ("Copyright (C) 1991, 92, 93, 94, 1995, 2002 Ian Lance Taylor\n");
+	  printf ("This program is free software; you may redistribute it under the terms of\n");
+	  printf ("the GNU General Public LIcense.  This program has ABSOLUTELY NO WARRANTY.\n");
 	  exit (EXIT_SUCCESS);
 	  /*NOTREACHED*/
 	  
@@ -162,9 +164,39 @@ main (argc, argv)
     }
   else
     {
+      struct uuconf_config_file_names snames;
       const char *zstr;
       int iint;
       char **pzsystems;
+
+      iret = uuconf_config_files (puuconf, &snames);
+      if (iret != UUCONF_SUCCESS)
+	ukuuconf_error (puuconf, iret);
+      if (snames.uuconf_ztaylor_config != NULL)
+	printf ("config file: %s\n", snames.uuconf_ztaylor_config);
+      ukshow_names("sys file", snames.uuconf_pztaylor_sys);
+      ukshow_names("port file", snames.uuconf_pztaylor_port);
+      ukshow_names("dial file", snames.uuconf_pztaylor_dial);
+      ukshow_names("dialcode file", snames.uuconf_pzdialcode);
+      ukshow_names("passwd file", snames.uuconf_pztaylor_pwd);
+      ukshow_names("call file", snames.uuconf_pztaylor_call);
+
+      if (snames.uuconf_zv2_systems != NULL)
+	printf ("V2 L.sys file: %s\n", snames.uuconf_zv2_systems);
+      if (snames.uuconf_zv2_device != NULL)
+	printf ("V2 L-devices file: %s\n", snames.uuconf_zv2_device);
+      if (snames.uuconf_zv2_userfile != NULL)
+	printf ("V2 USERFILE file: %s\n", snames.uuconf_zv2_userfile);
+      if (snames.uuconf_zv2_cmds != NULL)
+	printf ("V2 L.cmds file: %s\n", snames.uuconf_zv2_cmds);
+
+      ukshow_names("HDB Systems file", snames.uuconf_pzhdb_systems);
+      ukshow_names("HDB Devices file", snames.uuconf_pzhdb_devices);
+      ukshow_names("HDB Dialers file", snames.uuconf_pzhdb_dialers);
+      if (snames.uuconf_zhdb_permissions != NULL)
+	printf ("HDB Permissions file: %s\n", snames.uuconf_zhdb_permissions);
+      /* FIXME: This doesn't dump the following HDB file names:
+         Sysfiles, Maxuuxqts, remote.unknown.  */
 
       iret = uuconf_localname (puuconf, &zstr);
       if (iret == UUCONF_SUCCESS)
@@ -292,13 +324,34 @@ static void ukusage ()
 static void
 ukhelp ()
 {
-  printf ("Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995 Ian Lance Taylor\n",
+  printf ("Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995, 2002 Ian Lance Taylor\n",
 	  VERSION);
   printf ("Usage: %s [-s system] [-I file] [-v]\n", zKprogram);
   printf (" -s,--system system: Only print configuration for named system\n");
   printf (" -I,--config file: Set configuration file to use\n");
   printf (" -v,--version: Print version and exit\n");
   printf (" --help: Print help and exit\n");
+  printf ("Report bugs to taylor-uucp@gnu.org\n");
+}
+
+/* Print a list of configuration file names.  */
+static void
+ukshow_names (zheader, pznames)
+     const char *zheader;
+     const char * const *pznames;
+{
+  if (pznames == NULL)
+    return;
+  if (pznames[1] == NULL)
+    printf ("%s: %s\n", zheader, pznames[0]);
+  else
+    {
+      const char * const *pz;
+
+      printf ("%s:\n", zheader);
+      for (pz = pznames; *pz != NULL; ++pz)
+	printf ("  %s\n", *pz);
+    }
 }
 
 /* Dump out the information for a system.  */
@@ -684,6 +737,9 @@ ukshow (qsys, puuconf)
 	  printf ("\n");
 	}
 	  
+      if (qsys->uuconf_cmax_file_time > 0)
+	printf (" Maximum file send time: %ld\n", qsys->uuconf_cmax_file_time);
+
       if (qsys->uuconf_zprotocols != NULL)
 	printf (" Will use protocols %s\n", qsys->uuconf_zprotocols);
       else
@@ -814,6 +870,8 @@ ikshow_port (qport, pinfo)
       qtcp = &qport->uuconf_u.uuconf_stcp;
       printf ("   Port type tcp\n");
       printf ("   TCP service %s\n", qtcp->uuconf_zport);
+      if (qtcp->uuconf_iversion != 0)
+	printf ("   IP version %d\n", qtcp->uuconf_iversion);
       if (qtcp->uuconf_pzdialer != NULL
 	  && qtcp->uuconf_pzdialer[0] != NULL)
 	{

@@ -1,7 +1,7 @@
 /* tli.c
    Code to handle TLI connections.
 
-   Copyright (C) 1992, 1993, 1994 Ian Lance Taylor
+   Copyright (C) 1992, 1993, 1994, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -108,7 +107,7 @@ static const char *ztlierror P((void));
 static void utli_free P((struct sconnection *qconn));
 static boolean ftli_push P((struct sconnection *qconn));
 static boolean ftli_open P((struct sconnection *qconn, long ibaud,
-			    boolean fwait));
+			    boolean fwait, boolean fuser));
 static boolean ftli_close P((struct sconnection *qconn,
 			     pointer puuconf,
 			     struct uuconf_dialer *qdialer,
@@ -240,10 +239,11 @@ ftli_push (qconn)
    system.  */
 
 static boolean
-ftli_open (qconn, ibaud, fwait)
+ftli_open (qconn, ibaud, fwait, fuser)
      struct sconnection *qconn;
      long ibaud;
      boolean fwait;
+     boolean fuser ATTRIBUTE_UNUSED;
 {
   struct ssysdep_conn *qsysdep;
   const char *zdevice;
@@ -251,6 +251,7 @@ ftli_open (qconn, ibaud, fwait)
   const char *zservaddr;
   char *zfreeaddr;
   uid_t ieuid;
+  gid_t iegid;
   boolean fswap;
   struct t_bind *qtbind;
   struct t_call *qtcall;
@@ -281,7 +282,7 @@ ftli_open (qconn, ibaud, fwait)
   fswap = fwait && geteuid () != 0;
   if (fswap)
     {
-      if (! fsuser_perms (&ieuid))
+      if (! fsuser_perms (&ieuid, &iegid))
 	{
 	  ubuffree (zfreedev);
 	  return FALSE;
@@ -292,7 +293,7 @@ ftli_open (qconn, ibaud, fwait)
   if (qsysdep->o < 0)
     {
       if (fswap)
-	(void) fsuucp_perms ((long) ieuid);
+	(void) fsuucp_perms ((long) ieuid, (long) iegid);
       ulog (LOG_ERROR, "t_open (%s): %s", zdevice, ztlierror ());
       ubuffree (zfreedev);
       return FALSE;
@@ -302,7 +303,7 @@ ftli_open (qconn, ibaud, fwait)
 	     fcntl (qsysdep->o, F_GETFD, 0) | FD_CLOEXEC) < 0)
     {
       if (fswap)
-	(void) fsuucp_perms ((long) ieuid);
+	(void) fsuucp_perms ((long) ieuid, (long) iegid);
       ulog (LOG_ERROR, "fcntl (FD_CLOEXEC): %s", strerror (errno));
       ubuffree (zfreedev);
       (void) t_close (qsysdep->o);
@@ -314,7 +315,7 @@ ftli_open (qconn, ibaud, fwait)
   if (qsysdep->iflags < 0)
     {
       if (fswap)
-	(void) fsuucp_perms ((long) ieuid);
+	(void) fsuucp_perms ((long) ieuid, (long) iegid);
       ulog (LOG_ERROR, "fcntl: %s", strerror (errno));
       ubuffree (zfreedev);
       (void) t_close (qsysdep->o);
@@ -352,7 +353,7 @@ ftli_open (qconn, ibaud, fwait)
   if (qtbind == NULL)
     {
       if (fswap)
-	(void) fsuucp_perms ((long) ieuid);
+	(void) fsuucp_perms ((long) ieuid, (long) iegid);
       ulog (LOG_FATAL, "t_alloc (T_BIND): %s", ztlierror ());
     }
 
@@ -360,7 +361,7 @@ ftli_open (qconn, ibaud, fwait)
   if (zservaddr == NULL)
     {
       if (fswap)
-	(void) fsuucp_perms ((long) ieuid);
+	(void) fsuucp_perms ((long) ieuid, (long) iegid);
       ulog (LOG_FATAL, "Can't run as TLI server; no server address");
     }
 
@@ -369,7 +370,7 @@ ftli_open (qconn, ibaud, fwait)
   if (qtbind->addr.len > qtbind->addr.maxlen)
     {
       if (fswap)
-	(void) fsuucp_perms ((long) ieuid);
+	(void) fsuucp_perms ((long) ieuid, (long) iegid);
       ulog (LOG_FATAL, "%s: TLI server address too long (max %d)",
 	    zservaddr, qtbind->addr.maxlen);
     }
@@ -381,13 +382,13 @@ ftli_open (qconn, ibaud, fwait)
   if (t_bind (qsysdep->o, qtbind, (struct t_bind *) NULL) < 0)
     {
       if (fswap)
-	(void) fsuucp_perms ((long) ieuid);
+	(void) fsuucp_perms ((long) ieuid, (long) iegid);
       ulog (LOG_FATAL, "t_bind (%s): %s", zservaddr, ztlierror ());
     }
 
   if (fswap)
     {
-      if (! fsuucp_perms ((long) ieuid))
+      if (! fsuucp_perms ((long) ieuid, (long) iegid))
 	ulog (LOG_FATAL, "Could not swap back to UUCP user permissions");
     }
 

@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 /* This header file contains macro definitions which must be set by
@@ -96,7 +95,7 @@
    you should set HAVE_UNBLOCKED_WRITES to 0; otherwise you should set
    it to 1.  In general on System V releases without STREAMS-based
    ttys (e.g., before SVR4) HAVE_UNBLOCKED_WRITES should be 0 and on
-   BSD or SVR4 it should be 1.
+   modern systems it should be 1.
 
    If HAVE_UNBLOCKED_WRITES is set to 1 when it should be 0 you may
    see an unexpectedly large number of transmission errors, or, if you
@@ -301,6 +300,7 @@
 /* #define LOCKDIR "/etc/locks" */
 /* #define LOCKDIR "/usr/spool/locks" */
 /* #define LOCKDIR "/usr/spool/uucp/LCK" */
+/* #define LOCKDIR "/var/lock" */
 #define LOCKDIR "/var/spool/lock"
 
 /* You must also specify the format of the lock files by setting

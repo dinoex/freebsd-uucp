@@ -1,7 +1,7 @@
 /* parse.c
    Parse a UUCP command string.
 
-   Copyright (C) 1991, 1992, 1993 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -31,13 +30,18 @@ const char parse_rcsid[] = "$FreeBSD$";
 
 #include "uudefs.h"
 
+/* Local functions.  */ 
+
+static void ulunquote_cmd P((struct scmd *qcmd));
+
 /* Parse a UUCP command string into an scmd structure.  This is called
    by the 'g' protocol and the UNIX command file reading routines.  It
    destroys the string it is passed, and the scmd string pointers are
    left pointing into it.  For the convenience of the Unix work file
    routines, it will parse "P" into a simple 'P' command (representing
-   a poll file).  It returns TRUE if the string is successfully
-   parsed, FALSE otherwise.  */
+   a poll file).  If 'q' appears in the options, it will unquote all
+   the relevant strings.  It returns TRUE if the string is
+   successfully parsed, FALSE otherwise.  */
 
 boolean
 fparse_cmd (zcmd, qcmd)
@@ -116,7 +120,10 @@ fparse_cmd (zcmd, qcmd)
   qcmd->zoptions = z + 1;
 
   if (qcmd->bcmd == 'X')
-    return TRUE;
+    {
+      ulunquote_cmd (qcmd);
+      return TRUE;
+    }
 
   if (qcmd->bcmd == 'R')
     {
@@ -154,6 +161,7 @@ fparse_cmd (zcmd, qcmd)
 	    }
 	}
 
+      ulunquote_cmd (qcmd);
       return TRUE;
     }      
 
@@ -215,5 +223,29 @@ fparse_cmd (zcmd, qcmd)
 	}
     }
 
+  ulunquote_cmd (qcmd);
+
   return TRUE;
+}
+
+/* If 'q' appears in the options of a command, unquote all the
+   relevant strings.  */
+
+static void
+ulunquote_cmd (qcmd)
+     struct scmd *qcmd;
+{
+  if (qcmd->zoptions == NULL || strchr (qcmd->zoptions, 'q') == NULL)
+    return;
+
+  if (qcmd->zfrom != NULL)
+    (void) cescape ((char *) qcmd->zfrom);
+  if (qcmd->zto != NULL)
+    (void) cescape ((char *) qcmd->zto);
+  if (qcmd->zuser != NULL)
+    (void) cescape ((char *) qcmd->zuser);
+  if (qcmd->znotify != NULL)
+    (void) cescape ((char *) qcmd->znotify);
+  if (qcmd->zcmd != NULL)
+    (void) cescape ((char *) qcmd->zcmd);
 }

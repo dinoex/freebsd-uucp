@@ -1,3 +1,33 @@
+Changes in version 1.07:
+
+    As usual, many bugs were fixed.
+
+    uuchk now reports the configuration file names which it uses.
+    This makes it easier to figure out how to configure a binary
+    installation.
+
+    Certain options which could previously be set in Makefile.in are
+    now set as options to configure: --with-user, --with-newconfigdir,
+    --with-oldconfigdir.
+
+    You can now use file names and notification addresses which
+    contain spaces, but only when talking to another instance of
+    version 1.07.
+
+    The exit status of uux now uses values from <sysexits.h>.
+
+    TCP ports now support IPv6 on modern systems.  A new ``version''
+    command in the port file may be used to restrict a TCP port to
+    just IPv4 or just IPv6.
+
+    \M and \m may now be used in any chat script, not just a dialer
+    chat script.
+
+    Added ``max-file-time'' command to sys file.
+
+    When uucico automatically invokes uuxqt, it no longer passes the
+    -s option.
+
 Changes in version 1.06:
 
     As usual, many bugs were fixed.

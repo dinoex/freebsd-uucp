@@ -1,7 +1,7 @@
 /* picksb.c
    System dependent routines for uupick.
 
-   Copyright (C) 1992, 1993 Ian Lance Taylor
+   Copyright (C) 1992, 1993, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -70,7 +69,7 @@ static char *zSsysdir;
 /*ARGSUSED*/
 boolean
 fsysdep_uupick_init (zsystem, zpubdir)
-     const char *zsystem;
+     const char *zsystem ATTRIBUTE_UNUSED;
      const char *zpubdir;
 {
   const char *zuser;
@@ -101,7 +100,7 @@ fsysdep_uupick_init (zsystem, zpubdir)
 char *
 zsysdep_uupick (zsysarg, zpubdir, pzfrom, pzfull)
      const char *zsysarg;
-     const char *zpubdir;
+     const char *zpubdir ATTRIBUTE_UNUSED;
      char **pzfrom;
      char **pzfull;
 {
@@ -180,8 +179,8 @@ zsysdep_uupick (zsysarg, zpubdir, pzfrom, pzfull)
 /*ARGSUSED*/
 boolean
 fsysdep_uupick_free (zsystem, zpubdir)
-     const char *zsystem;
-     const char *zpubdir;
+     const char *zsystem ATTRIBUTE_UNUSED;
+     const char *zpubdir ATTRIBUTE_UNUSED;
 {
   xfree ((pointer) zStopdir);
   if (qStopdir != NULL)

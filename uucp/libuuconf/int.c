@@ -1,7 +1,7 @@
 /* int.c
    Parse a string into an int or a long.
 
-   Copyright (C) 1992 Ian Lance Taylor
+   Copyright (C) 1992, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP uuconf library.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucnfi.h"
@@ -38,7 +37,7 @@ const char _uuconf_int_rcsid[] = "$FreeBSD$";
 /*ARGSIGNORED*/
 int
 _uuconf_iint (qglobal, zval, p, fint)
-     struct sglobal *qglobal;
+     struct sglobal *qglobal ATTRIBUTE_UNUSED;
      const char *zval;
      pointer p;
      boolean fint;

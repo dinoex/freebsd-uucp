@@ -1,7 +1,7 @@
 /* tport.c
    Find a port in the Taylor UUCP configuration files.
 
-   Copyright (C) 1992, 1993 Ian Lance Taylor
+   Copyright (C) 1992, 1993, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP uuconf library.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucnfi.h"
@@ -254,10 +253,10 @@ uuconf_taylor_find_port (pglobal, zname, ibaud, ihighbaud, pifn, pinfo,
 static int
 ipport (pglobal, argc, argv, pvar, pinfo)
      pointer pglobal;
-     int argc;
+     int argc ATTRIBUTE_UNUSED;
      char **argv;
      pointer pvar;
-     pointer pinfo;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   struct sglobal *qglobal = (struct sglobal *) pglobal;
   char **pz = (char **) pvar;
@@ -285,7 +284,7 @@ ipunknown (pglobal, argc, argv, pvar, pinfo)
      pointer pglobal;
      int argc;
      char **argv;
-     pointer pvar;
+     pointer pvar ATTRIBUTE_UNUSED;
      pointer pinfo;
 {
   struct sglobal *qglobal = (struct sglobal *) pglobal;

@@ -1,7 +1,7 @@
 /* hsinfo.c
    Get information about a system from the HDB configuration files.
 
-   Copyright (C) 1992, 1993, 1995 Ian Lance Taylor
+   Copyright (C) 1992, 1993, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP uuconf library.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucnfi.h"
@@ -594,7 +593,7 @@ _uuconf_ihdb_system_internal (qglobal, zsystem, qsys)
 /*ARGSIGNORED*/
 static int
 ihadd_machine_perm (qglobal, qsys, qperm)
-     struct sglobal *qglobal;
+     struct sglobal *qglobal ATTRIBUTE_UNUSED;
      struct uuconf_system *qsys;
      struct shpermissions *qperm;
 {
@@ -617,7 +616,7 @@ ihadd_machine_perm (qglobal, qsys, qperm)
 /*ARGSIGNORED*/
 static int
 ihadd_logname_perm (qglobal, qsys, qperm)
-     struct sglobal *qglobal;
+     struct sglobal *qglobal ATTRIBUTE_UNUSED;
      struct uuconf_system *qsys;
      struct shpermissions *qperm;
 {

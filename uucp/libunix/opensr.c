@@ -1,7 +1,7 @@
 /* opensr.c
    Open files for sending and receiving.
 
-   Copyright (C) 1991, 1992, 1993 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -67,7 +66,7 @@ extern time_t time ();
 
 openfile_t
 esysdep_open_send (qsys, zfile, fcheck, zuser)
-     const struct uuconf_system *qsys;
+     const struct uuconf_system *qsys ATTRIBUTE_UNUSED;
      const char *zfile;
      boolean fcheck;
      const char *zuser;
@@ -137,7 +136,7 @@ esysdep_open_send (qsys, zfile, fcheck, zuser)
 char *
 zsysdep_receive_temp (qsys, zto, ztemp, frestart)
      const struct uuconf_system *qsys;
-     const char *zto;
+     const char *zto ATTRIBUTE_UNUSED;
      const char *ztemp;
      boolean frestart;
 {
@@ -160,8 +159,8 @@ zsysdep_receive_temp (qsys, zto, ztemp, frestart)
 
 openfile_t
 esysdep_open_receive (qsys, zto, ztemp, zreceive, pcrestart)
-     const struct uuconf_system *qsys;
-     const char *zto;
+     const struct uuconf_system *qsys ATTRIBUTE_UNUSED;
+     const char *zto ATTRIBUTE_UNUSED;
      const char *ztemp;
      const char *zreceive;
      long *pcrestart;

@@ -1,7 +1,7 @@
 /* buffer.c
    Manipulate buffers used to hold strings.
 
-   Copyright (C) 1992, 1993 Ian Lance Taylor
+   Copyright (C) 1992, 1993, 2002 Ian Lance Taylor
 
    This file is part of Taylor UUCP.
 
@@ -17,15 +17,19 @@
 
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
 
 #include "uudefs.h"
+
+/* Define MALLOC_BUFFERS when compiling this file in order to more
+   effectively use a debugging malloc library.  */
+
+#ifndef MALLOC_BUFFERS
 
 /* We keep a linked list of buffers.  The union is a hack because the
    default definition of offsetof, in uucp.h, takes the address of the
@@ -74,23 +78,6 @@ zbufalc (c)
   return q->u.ab;
 }
 
-/* Get a buffer holding a given string.  */
-
-char *
-zbufcpy (z)
-     const char *z;
-{
-  size_t csize;
-  char *zret;
-
-  if (z == NULL)
-    return NULL;
-  csize = strlen (z) + 1;
-  zret = zbufalc (csize);
-  memcpy (zret, z, csize);
-  return zret;
-}
-
 /* Free up a buffer back onto the linked list.  */
 
 void
@@ -124,4 +111,41 @@ ubuffree (z)
 
   q->qnext = qBlist;
   qBlist = q;
+}
+
+#else /* MALLOC_BUFFERS */
+
+char *
+zbufalc (c)
+     size_t c;
+{
+  return (char *) xmalloc (c);
+}
+
+/* Free up a buffer back onto the linked list.  */
+
+void
+ubuffree (z)
+     char *z;
+{
+  free (z);
+}
+
+#endif /* MALLOC_BUFFERS */
+
+/* Get a buffer holding a given string.  */
+
+char *
+zbufcpy (z)
+     const char *z;
+{
+  size_t csize;
+  char *zret;
+
+  if (z == NULL)
+    return NULL;
+  csize = strlen (z) + 1;
+  zret = zbufalc (csize);
+  memcpy (zret, z, csize);
+  return zret;
 }

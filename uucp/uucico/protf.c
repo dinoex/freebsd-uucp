@@ -1,7 +1,7 @@
 /* protf.c
    The 'f' protocol.
 
-   Copyright (C) 1991, 1992, 1993 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -174,7 +173,7 @@ ffstart (qdaemon, pzlog)
 /*ARGSIGNORED*/
 boolean
 ffshutdown (qdaemon)
-     struct sdaemon *qdaemon;
+     struct sdaemon *qdaemon ATTRIBUTE_UNUSED;
 {
   xfree ((pointer) zFbuf);
   zFbuf = NULL;
@@ -197,8 +196,8 @@ boolean
 ffsendcmd (qdaemon, z, ilocal, iremote)
      struct sdaemon *qdaemon;
      const char *z;
-     int ilocal;
-     int iremote;
+     int ilocal ATTRIBUTE_UNUSED;
+     int iremote ATTRIBUTE_UNUSED;
 {
   size_t clen;
   char *zalc;
@@ -222,7 +221,7 @@ ffsendcmd (qdaemon, z, ilocal, iremote)
 /*ARGSIGNORED*/
 char *
 zfgetspace (qdaemon, pclen)
-     struct sdaemon *qdaemon;
+     struct sdaemon *qdaemon ATTRIBUTE_UNUSED;
      size_t *pclen;
 {
   *pclen = CFBUFSIZE;
@@ -240,9 +239,9 @@ ffsenddata (qdaemon, zdata, cdata, ilocal, iremote, ipos)
      struct sdaemon *qdaemon;
      char *zdata;
      size_t cdata;
-     int ilocal;
-     int iremote;
-     long ipos;
+     int ilocal ATTRIBUTE_UNUSED;
+     int iremote ATTRIBUTE_UNUSED;
+     long ipos ATTRIBUTE_UNUSED;
 {
   char ab[CFBUFSIZE * 2];
   char *ze;
@@ -585,7 +584,7 @@ fffile (qdaemon, qtrans, fstart, fsend, cbytes, pfhandled)
      struct stransfer *qtrans;
      boolean fstart;
      boolean fsend;
-     long cbytes;
+     long cbytes ATTRIBUTE_UNUSED;
      boolean *pfhandled;
 {
   DEBUG_MESSAGE3 (DEBUG_PROTO, "fffile: fstart %s; fsend %s; fFacked %s",
@@ -673,7 +672,7 @@ ffawait_ack (qtrans, qdaemon, zdata, cdata)
      struct stransfer *qtrans;
      struct sdaemon *qdaemon;
      const char *zdata;
-     size_t cdata;
+     size_t cdata ATTRIBUTE_UNUSED;
 {
   struct sfinfo *qinfo = (struct sfinfo *) qtrans->pinfo;
 
@@ -742,7 +741,7 @@ ffawait_cksum (qtrans, qdaemon, zdata, cdata)
      struct stransfer *qtrans;
      struct sdaemon *qdaemon;
      const char *zdata;
-     size_t cdata;
+     size_t cdata ATTRIBUTE_UNUSED;
 {
   struct sfinfo *qinfo = (struct sfinfo *) qtrans->pinfo;
   unsigned int icheck;

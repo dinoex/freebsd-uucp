@@ -1,7 +1,7 @@
 /* uucico.c
    This is the main UUCP communication program.
 
-   Copyright (C) 1991, 1992, 1993, 1994, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1994, 1995, 2002, 2003 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -402,8 +401,10 @@ main (argc, argv)
 
 	case 'v':
 	  /* Print version and exit.  */
-	  printf ("%s: Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995 Ian Lance Taylor\n",
-		  zProgram, VERSION);
+	  printf ("uucico (Taylor UUCP) %s\n", VERSION);
+	  printf ("Copyright (C) 1991, 92, 93, 94, 1995, 2002, 2003 Ian Lance Taylor\n");
+	  printf ("This program is free software; you may redistribute it under the terms of\n");
+	  printf ("the GNU General Public LIcense.  This program has ABSOLUTELY NO WARRANTY.\n");
 	  exit (EXIT_SUCCESS);
 	  /*NOTREACHED*/
 
@@ -682,7 +683,7 @@ main (argc, argv)
 	    usysdep_detach ();
 	}
 
-      if (fconn_lock (&sconn, TRUE))
+      if (fconn_lock (&sconn, TRUE, FALSE))
 	flocked = TRUE;
       else
 	{
@@ -694,7 +695,7 @@ main (argc, argv)
 
       if (fret)
 	{
-	  if (! fconn_open (&sconn, (long) 0, (long) 0, TRUE))
+	  if (! fconn_open (&sconn, (long) 0, (long) 0, TRUE, FALSE))
 	    fret = FALSE;
 	  qConn = &sconn;
 	}
@@ -712,7 +713,8 @@ main (argc, argv)
 		  if (! fconn_close (&sconn, puuconf,
 				     (struct uuconf_dialer *) NULL,
 				     TRUE)
-		      || ! fconn_open (&sconn, (long) 0, (long) 0, TRUE))
+		      || ! fconn_open (&sconn, (long) 0, (long) 0, TRUE,
+				       FALSE))
 		    break;
 		}
 	      fret = FALSE;
@@ -801,7 +803,7 @@ uusage ()
 static void
 uhelp ()
 {
-  printf ("Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995 Ian Lance Taylor\n",
+  printf ("Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995, 2002 Ian Lance Taylor\n",
 	   VERSION);
   printf ("Usage: %s [options]\n", zProgram);
   printf (" -s,-S,--system system: Call system (-S implies -f)\n");
@@ -811,7 +813,7 @@ uhelp ()
   printf (" --master: Act as master\n");
   printf (" --slave: Act as slave (default)\n");
   printf (" -p,--port port: Specify port\n");
-  printf (" -l,--prompt: prompt for login name and password\n");
+  printf (" -l,--prompt: Prompt for login name and password\n");
   printf (" -e,--loop: Endless loop of login prompts and daemon execution\n");
   printf (" -w,--wait: After calling out, wait for incoming calls\n");
   printf (" -q,--nouuxqt: Don't start uuxqt when done\n");
@@ -827,6 +829,7 @@ uhelp ()
 #endif /* HAVE_TAYLOR_CONFIG */
   printf (" -v,--version: Print version and exit\n");
   printf (" --help: Print help and exit\n");
+  printf ("Report bugs to taylor-uucp@gnu.org\n");
 }
 
 /* This function is called when a LOG_FATAL error occurs.  */
@@ -955,6 +958,31 @@ fcall (puuconf, zconfig, fuuxqt, qorigsys, qport, fifwork, fforce, fdetach,
 
       if (qport && strcmp (qsys->uuconf_zport,qport->uuconf_zname))
        continue;
+
+      /* If a port was specified, and this alternate does not use the
+	 specified port, but a later alternate does use the specified
+	 port, skip this alternate.  This permits specifying a port as
+	 a way to select a particular alternate.  There probably ought
+	 to be a way to select a specific alternate, but there isn't.  */
+      if (qport != NULL
+	  && (qsys->uuconf_qport != NULL
+	      || (qsys->uuconf_zport != NULL
+		  && strcmp (qport->uuconf_zname, qsys->uuconf_zport) != 0)))
+	{
+	  const struct uuconf_system *ql;
+
+	  for (ql = qsys->uuconf_qalternate;
+	       ql != NULL;
+	       ql = ql->uuconf_qalternate)
+	    {
+	      if (ql->uuconf_qport == NULL
+		  && ql->uuconf_zport != NULL
+		  && strcmp (ql->uuconf_zport, qport->uuconf_zname) == 0)
+		break;
+	    }
+	  if (ql != NULL)
+	    continue;
+	}
 
       fnevertime = FALSE;
 
@@ -1100,7 +1128,7 @@ fconn_call (qdaemon, qport, qstat, cretry, pfcalled)
     {
       if (! fconn_init (qport, &sconn, UUCONF_PORTTYPE_UNKNOWN))
 	return FALSE;
-      if (! fconn_lock (&sconn, FALSE))
+      if (! fconn_lock (&sconn, FALSE, FALSE))
 	{
 	  ulog (LOG_ERROR, "%s: Port already locked",
 		qport->uuconf_zname);
@@ -1122,10 +1150,20 @@ fconn_call (qdaemon, qport, qstat, cretry, pfcalled)
 				  &sport);
       if (iuuconf == UUCONF_NOT_FOUND)
 	{
-	  if (s.fmatched)
-	    ulog (LOG_ERROR, "All matching ports in use");
-	  else
+	  if (! s.fmatched)
 	    ulog (LOG_ERROR, "No matching ports");
+	  else
+	    {
+	      ulog (LOG_ERROR, "All matching ports in use");
+	      qstat->ttype = STATUS_PORT_FAILED;
+	      /* We don't change cretries for this case.  */
+	      qstat->ilast = ixsysdep_time ((long *) NULL);
+	      if (cretry == 0)
+		qstat->cwait = CRETRY_WAIT (qstat->cretries);
+	      else
+		qstat->cwait = cretry * 60;
+	      (void) fsysdep_set_status (qsys, qstat);
+	    }
 	  return FALSE;
 	}
       else if (iuuconf != UUCONF_SUCCESS)
@@ -1141,7 +1179,7 @@ fconn_call (qdaemon, qport, qstat, cretry, pfcalled)
     }
 
   if (! fconn_open (&sconn, qsys->uuconf_ibaud, qsys->uuconf_ihighbaud,
-		    FALSE))
+		    FALSE, FALSE))
     {
       terr = STATUS_PORT_FAILED;
       fret = FALSE;
@@ -1386,13 +1424,15 @@ fdo_call (qdaemon, qstat, qdialer, pfcalled, pterr)
 	  sprintf (zsend, "S%s -R -N0%o", qdaemon->zlocalname,
 		   (unsigned int) (FEATURE_SIZES
 				   | FEATURE_EXEC
-				   | FEATURE_RESTART));
+				   | FEATURE_RESTART
+				   | FEATURE_QUOTES));
 	else
 	  sprintf (zsend, "S%s -p%c -vgrade=%c -R -N0%o",
 		   qdaemon->zlocalname, bgrade, bgrade,
 		   (unsigned int) (FEATURE_SIZES
 				   | FEATURE_EXEC
-				   | FEATURE_RESTART));
+				   | FEATURE_RESTART
+				   | FEATURE_QUOTES));
       }
     else
       {
@@ -1405,13 +1445,15 @@ fdo_call (qdaemon, qstat, qdialer, pfcalled, pterr)
 	  sprintf (zsend, "S%s -Q%ld -R -N0%o", qdaemon->zlocalname, iseq,
 		   (unsigned int) (FEATURE_SIZES
 				   | FEATURE_EXEC
-				   | FEATURE_RESTART));
+				   | FEATURE_RESTART
+				   | FEATURE_QUOTES));
 	else
 	  sprintf (zsend, "S%s -Q%ld -p%c -vgrade=%c -R -N0%o",
 		   qdaemon->zlocalname, iseq, bgrade, bgrade,
 		   (unsigned int) (FEATURE_SIZES
 				   | FEATURE_EXEC
-				   | FEATURE_RESTART));
+				   | FEATURE_RESTART
+				   | FEATURE_QUOTES));
       }
 
     fret = fsend_uucp_cmd (qconn, zsend);
@@ -1533,7 +1575,7 @@ fdo_call (qdaemon, qstat, qdialer, pfcalled, pterr)
   /* Now decide which protocol to use.  The system and the port may
      have their own list of protocols.  */
   {
-    int i;
+    size_t i;
     char ab[5];
 
     i = CPROTOCOLS;
@@ -1707,7 +1749,7 @@ iuport_lock (qport, pinfo)
 
   if (! fconn_init (qport, q->qconn, UUCONF_PORTTYPE_UNKNOWN))
     return UUCONF_NOT_FOUND;
-  else if (! fconn_lock (q->qconn, FALSE))
+  else if (! fconn_lock (q->qconn, FALSE, FALSE))
     {
       uconn_free (q->qconn);
       return UUCONF_NOT_FOUND;
@@ -1888,7 +1930,7 @@ faccept_call (puuconf, zconfig, fuuxqt, zlogin, qconn, pzsystem)
   char *zloc;
   struct sstatus sstat;
   boolean fgotseq, fgotn;
-  int i;
+  size_t i;
   char *zlog;
   char *zgrade;
 
@@ -2182,7 +2224,8 @@ faccept_call (puuconf, zconfig, fuuxqt, zlogin, qconn, pzsystem)
       (void) fsysdep_set_status (qsys, &sstat);
 
       ubuffree (zsysdep_spool_commands (qsys, UUCONF_GRADE_HIGH, 0,
-					(const struct scmd *) NULL));
+					(const struct scmd *) NULL,
+					(boolean *) NULL));
       ubuffree (zstr);
       uaccept_call_cleanup (puuconf, &ssys, qport, &sport, zloc);
       return TRUE;
@@ -2405,7 +2448,8 @@ faccept_call (puuconf, zconfig, fuuxqt, zlogin, qconn, pzsystem)
 	sprintf (ab, "ROKN0%o",
 		 (unsigned int) (FEATURE_SIZES
 				 | FEATURE_EXEC
-				 | FEATURE_RESTART));
+				 | FEATURE_RESTART
+				 | FEATURE_QUOTES));
 	zreply = ab;
       }
     if (! fsend_uucp_cmd (qconn, zreply))
@@ -2687,7 +2731,7 @@ faccept_call (puuconf, zconfig, fuuxqt, zlogin, qconn, pzsystem)
 
 static void
 uaccept_call_cleanup (puuconf, qfreesys, qport, qfreeport, zloc)
-     pointer puuconf;
+     pointer puuconf ATTRIBUTE_UNUSED;
      struct uuconf_system *qfreesys;
      struct uuconf_port *qport;
      struct uuconf_port *qfreeport;
@@ -3054,25 +3098,18 @@ zget_typed_line (qconn, fstrip)
 }
 
 /* Spawn a uuxqt job.  This probably belongs in some other file, but I
-   don't have a good place for it.  */
+   don't have a good place for it.  We used to spawn uuxqt with a -s
+   option for zsys, but that doesn't help much, and when max-uuxqts is
+   used it permits one system to hog the uuxqt jobs.  */
 
 boolean
 fspawn_uuxqt (ffork, zsys, zconfig)
      boolean ffork;
-     const char *zsys;
+     const char *zsys ATTRIBUTE_UNUSED;
      const char *zconfig;
 {
-  char *zsysarg;
   char *zconfigarg;
   boolean fret;
-
-  if (zsys == NULL)
-    zsysarg = NULL;
-  else
-    {
-      zsysarg = zbufalc (sizeof "-s" + strlen (zsys));
-      sprintf (zsysarg, "-s%s", zsys);
-    }
 
   if (zconfig == NULL)
     zconfigarg = NULL;
@@ -3080,16 +3117,10 @@ fspawn_uuxqt (ffork, zsys, zconfig)
     {
       zconfigarg = zbufalc (sizeof "-I" + strlen (zconfig));
       sprintf (zconfigarg, "-I%s", zconfig);
-      if (zsysarg == NULL)
-	{
-	  zsysarg = zconfigarg;
-	  zconfigarg = NULL;
-	}
     }
 
-  fret = fsysdep_run (ffork, "uuxqt", zsysarg, zconfigarg);
+  fret = fsysdep_run (ffork, "uuxqt", zconfigarg, (const char *) NULL);
 
-  ubuffree (zsysarg);
   ubuffree (zconfigarg);
 
   return fret;

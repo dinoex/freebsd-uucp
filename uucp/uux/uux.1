@@ -1,6 +1,6 @@
 .\" $Id$
-.\" $FreeBSD: src/gnu/libexec/uucp/uux/uux.1,v 1.7 1999/08/27 23:34:05 peter Exp $
-.TH uux 1 "Taylor UUCP 1.06"
+''' $Id$
+.TH uux 1 "Taylor UUCP 1.07"
 .SH NAME
 uux \- Remote command execution over UUCP
 .SH SYNOPSIS
@@ -41,10 +41,10 @@ file to a command being executed on a remote system.  If the path is
 not absolute, it will be appended to the current working directory on
 the local system; the result may not be meaningful on the remote
 system.  A pathname may begin with ~/, in which case it is relative to
-the UUCP public directory (usually /var/spool/uucppublic) on the
-appropriate system.  A pathname may begin with ~name/, in which case
-it is relative to the home directory of the named user on the
-appropriate system.
+the UUCP public directory (usually /usr/spool/uucppublic or
+/var/spool/uucppublic) on the appropriate system.  A pathname may
+begin with ~name/, in which case it is relative to the home directory
+of the named user on the appropriate system.
 
 Standard input and output may be redirected as usual; the pathnames
 used may contain exclamation points to indicate that they are on
@@ -74,6 +74,20 @@ command on a remote system.
 A request to execute an empty command (e.g.,
 .I uux sys!)
 will create a poll file for the specified system.
+
+The exit status of
+.I uux
+is one of the codes found in the header file
+.B sysexits.h.
+In particular,
+.B EX_OK
+(
+.B 0
+) indicates success, and 
+.B EX_TEMPFAIL
+(
+.B 75
+) indicates a temporary failure.
 .SH OPTIONS
 The following options may be given to
 .I uux.
@@ -227,21 +241,6 @@ and
 Some of the options are dependent on the capabilities of the
 .I uuxqt
 (8) daemon on the remote system.
-.SH FILES
-The file names may be changed at compilation time or by the
-configuration file, so these are only approximations.
-
-.br
-/etc/uucp/config - Configuration file.
-.br
-/var/spool/uucp -
-UUCP spool directory.
-.br
-/var/spool/uucp/Log -
-UUCP log file.
-.br
-/var/spool/uucppublic -
-Default UUCP public directory.
 .SH SEE ALSO
 mail(1), uustat(1), uucp(1), uucico(8), uuxqt(8)
 .SH BUGS

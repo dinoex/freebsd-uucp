@@ -1,7 +1,7 @@
 /* uucp.c
    Prepare to copy a file to or from a remote system.
 
-   Copyright (C) 1991, 1992, 1993, 1994, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1994, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -44,7 +43,8 @@ static void ucusage P((void));
 static void uchelp P((void));
 static void ucdirfile P((const char *zdir, const char *zfile,
 			 pointer pinfo));
-static void uccopy P((const char *zfile, const char *zdest));
+static void uccopy P((const char *zfile, const char *zdest,
+		      boolean fforcelocal));
 static void ucadd_cmd P((const struct uuconf_system *qsys,
 			 const struct scmd *qcmd, const char *zlog));
 static void ucspool_cmds P((boolean fjobid));
@@ -52,7 +52,9 @@ static const char *zcone_system P((boolean *pfany));
 static void ucrecord_file P((const char *zfile));
 static void ucabort P((void));
 
-/* Long getopt options.  */
+/* Long getopt options.  Note that any changes here must be reflected
+   in the code in uuxqt.c which checks the options used for the uucp
+   command.  */
 static const struct option asClongopts[] =
 {
   { "copy", no_argument, NULL, 'C' },
@@ -68,7 +70,7 @@ static const struct option asClongopts[] =
   { "status", required_argument, NULL, 's' },
   { "uuto", no_argument, NULL, 't' },
   { "user", required_argument, NULL, 'u' },
-  { "noexpand", no_argument, NULL, 'w' },
+  { "noexpand", no_argument, NULL, 'W' },
   { "config", required_argument, NULL, 'I' },
   { "debug", required_argument, NULL, 'x' },
   { "version", no_argument, NULL, 'v' },
@@ -256,8 +258,10 @@ main (argc, argv)
 
 	case 'v':
 	  /* Print version and exit.  */
-	  printf ("%s: Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995 Ian Lance Taylor\n",
-		  zProgram, VERSION);
+	  printf ("uucp (Taylor UUCP) %s\n", VERSION);
+	  printf ("Copyright (C) 1991, 92, 93, 94, 1995, 2002 Ian Lance Taylor\n");
+	  printf ("This program is free software; you may redistribute it under the terms of\n");
+	  printf ("the GNU General Public LIcense.  This program has ABSOLUTELY NO WARRANTY.\n");
 	  exit (EXIT_SUCCESS);
 	  /*NOTREACHED*/
 
@@ -538,7 +542,7 @@ main (argc, argv)
 	}
 
       if (! flocal || ! fsysdep_directory (zfrom))
-	uccopy (zfrom, zdestfile);
+	uccopy (zfrom, zdestfile, FALSE);
       else
 	{
 	  char *zbase, *zindir;
@@ -633,7 +637,7 @@ ucusage ()
 static void
 uchelp ()
 {
-  printf ("Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995 Ian Lance Taylor\n",
+  printf ("Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995, 2002 Ian Lance Taylor\n",
 	   VERSION);
   printf ("Usage: %s [options] file1 [file2 ...] dest\n", zProgram);
   printf (" -c,--nocopy: Do not copy local files to spool directory\n");
@@ -649,13 +653,14 @@ uchelp ()
   printf (" -j,--jobid: Report job id\n");
   printf (" -W,--noexpand: Do not add current directory to remote filenames\n");
   printf (" -t,--uuto: Emulate uuto\n");
-  printf (" -u,--usage name: Set user name\n");
+  printf (" -u,--user name: Set user name\n");
   printf (" -x,--debug debug: Set debugging level\n");
 #if HAVE_TAYLOR_CONFIG
   printf (" -I,--config file: Set configuration file to use\n");
 #endif /* HAVE_TAYLOR_CONFIG */
   printf (" -v,--version: Print version and exit\n");
   printf (" --help: Print help and exit\n");
+  printf ("Report bugs to taylor-uucp@gnu.org\n");
 }
 
 /* This is called for each file in a directory heirarchy.  */
@@ -673,7 +678,7 @@ ucdirfile (zfull, zrelative, pinfo)
   if (zto == NULL)
     ucabort ();
 
-  uccopy (zfull, zto);
+  uccopy (zfull, zto, TRUE);
 
   ubuffree (zto);
 }
@@ -684,9 +689,10 @@ ucdirfile (zfull, zrelative, pinfo)
    absolute path.  */
 
 static void
-uccopy (zfile, zdest)
+uccopy (zfile, zdest, fforcelocal)
      const char *zfile;
      const char *zdest;
+     boolean fforcelocal;
 {
   struct scmd s;
   char *zexclam;
@@ -694,7 +700,7 @@ uccopy (zfile, zdest)
 
   zexclam = strchr (zfile, '!');
 
-  if (zexclam == NULL)
+  if (zexclam == NULL || fforcelocal)
     {
       openfile_t efrom;
 
@@ -719,6 +725,7 @@ uccopy (zfile, zdest)
       if (fClocaldest)
 	{
 	  boolean fok;
+	  unsigned int imode;
 
 	  /* Copy one local file to another.  */
 
@@ -748,6 +755,10 @@ uccopy (zfile, zdest)
 	    ucabort ();
 	  (void) ffileclose (efrom);
 	  ubuffree (zto);
+
+	  imode = ixsysdep_user_file_mode (zfile);
+	  if (imode != 0)
+	    (void) fsysdep_change_mode (zto, imode);
 	}
       else
 	{
@@ -758,7 +769,7 @@ uccopy (zfile, zdest)
 
 	  /* Copy a local file to a remote file.  We may have to
 	     copy the local file to the spool directory.  */
-	  imode = ixsysdep_file_mode (zfile);
+	  imode = ixsysdep_user_file_mode (zfile);
 	  if (imode == 0)
 	    ucabort ();
 
@@ -1172,7 +1183,7 @@ ucspool_cmds (fjobid)
     {
       ulog_system (qjob->qsys->uuconf_zname);
       zjobid = zsysdep_spool_commands (qjob->qsys, bCgrade, qjob->ccmds,
-				       qjob->pascmds);
+				       qjob->pascmds, (boolean *) NULL);
       if (zjobid != NULL)
 	{
 	  int i;

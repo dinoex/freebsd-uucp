@@ -1,7 +1,7 @@
 /* uuxqt.c
    Run uux commands.
 
-   Copyright (C) 1991, 1992, 1993, 1994, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1994, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -128,8 +127,10 @@ main (argc, argv)
 
 	case 'v':
 	  /* Print version and exit.  */
-	  printf ("%s: Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995 Ian Lance Taylor\n",
-		  zProgram, VERSION);
+	  printf ("uuxqt (Taylor UUCP) %s\n", VERSION);
+	  printf ("Copyright (C) 1991, 92, 93, 94, 1995, 2002 Ian Lance Taylor\n");
+	  printf ("This program is free software; you may redistribute it under the terms of\n");
+	  printf ("the GNU General Public LIcense.  This program has ABSOLUTELY NO WARRANTY.\n");
 	  exit (EXIT_SUCCESS);
 	  /*NOTREACHED*/
 
@@ -365,7 +366,7 @@ main (argc, argv)
 static void
 uqhelp ()
 {
-  printf ("Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995 Ian Lance Taylor\n",
+  printf ("Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995, 2002 Ian Lance Taylor\n",
 	   VERSION);
   printf ("Usage: %s [-c,--command cmd] [-s,--system system]\n", zProgram);
   printf (" -c,--command cmd: Set type of command to execute\n");
@@ -376,6 +377,7 @@ uqhelp ()
 #endif /* HAVE_TAYLOR_CONFIG */
   printf (" -v,--version: Print version and exit\n");
   printf (" --help: Print help and exit\n");
+  printf ("Report bugs to taylor-uucp@gnu.org\n");
 }
 
 static void
@@ -429,6 +431,7 @@ uqabort ()
    e (process with sh)
    E (process with exec)
    M status-file
+   Q (C, I, O, F, R, U, M arguments are backslash quoted)
    # comment
 
    Unrecognized commands are ignored.  We actually do not recognize
@@ -474,6 +477,8 @@ static boolean fQsend_input;
 static boolean fQuse_exec;
 /* The status should be copied to this file on the requesting host.  */
 static const char *zQstatus_file;
+/* Whether the entries in the file are backslash quoted.  */
+static boolean fQquoted;
 #if ALLOW_SH_EXECUTION
 /* This is set by the e flag, meaning that sh should be used to
    execute the command.  */
@@ -513,6 +518,7 @@ static const struct uuconf_cmdtab asQcmds[] =
 #endif
   { "E", UUCONF_CMDTABTYPE_FN | 0, (pointer) &fQuse_exec, iqset },
   { "M", UUCONF_CMDTABTYPE_STRING, (pointer) &zQstatus_file, NULL },
+  { "Q", UUCONF_CMDTABTYPE_FN | 0, (pointer) &fQquoted, iqset },
   { NULL, 0, NULL, NULL }
 };
 
@@ -521,11 +527,11 @@ static const struct uuconf_cmdtab asQcmds[] =
 /*ARGSUSED*/
 static int
 iqcmd (puuconf, argc, argv, pvar, pinfo)
-     pointer puuconf;
+     pointer puuconf ATTRIBUTE_UNUSED;
      int argc;
      char **argv;
-     pointer pvar;
-     pointer pinfo;
+     pointer pvar ATTRIBUTE_UNUSED;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   int i;
   size_t clen;
@@ -559,11 +565,11 @@ iqcmd (puuconf, argc, argv, pvar, pinfo)
 /*ARGSUSED*/
 static int
 iqout (puuconf, argc, argv, pvar, pinfo)
-     pointer puuconf;
+     pointer puuconf ATTRIBUTE_UNUSED;
      int argc;
      char **argv;
-     pointer pvar;
-     pointer pinfo;
+     pointer pvar ATTRIBUTE_UNUSED;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   if (argc > 1)
     zQoutfile = zbufcpy (argv[1]);
@@ -578,11 +584,11 @@ iqout (puuconf, argc, argv, pvar, pinfo)
 /*ARGSUSED*/
 static int
 iqfile (puuconf, argc, argv, pvar, pinfo)
-     pointer puuconf;
+     pointer puuconf ATTRIBUTE_UNUSED;
      int argc;
      char **argv;
-     pointer pvar;
-     pointer pinfo;
+     pointer pvar ATTRIBUTE_UNUSED;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   if (argc < 2)
     return UUCONF_CMDTABRET_CONTINUE;
@@ -611,11 +617,11 @@ iqfile (puuconf, argc, argv, pvar, pinfo)
 /*ARGSUSED*/
 static int
 iqrequestor (puuconf, argc, argv, pvar, pinfo)
-     pointer puuconf;
+     pointer puuconf ATTRIBUTE_UNUSED;
      int argc;
      char **argv;
-     pointer pvar;
-     pointer pinfo;
+     pointer pvar ATTRIBUTE_UNUSED;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   /* We normally have a single argument, which is the ``requestor''
      address, to which we should send any success or error messages.
@@ -638,11 +644,11 @@ iqrequestor (puuconf, argc, argv, pvar, pinfo)
 /*ARGSUSED*/
 static int
 iquser (puuconf, argc, argv, pvar, pinfo)
-     pointer puuconf;
+     pointer puuconf ATTRIBUTE_UNUSED;
      int argc;
      char **argv;
-     pointer pvar;
-     pointer pinfo;
+     pointer pvar ATTRIBUTE_UNUSED;
+     pointer pinfo ATTRIBUTE_UNUSED;
 {
   if (argc > 1)
     zQuser = argv[1];
@@ -656,11 +662,11 @@ iquser (puuconf, argc, argv, pvar, pinfo)
 /*ARGSUSED*/
 static int
 iqset (puuconf, argc, argv, pvar, pinfo)
-     pointer puuconf;
-     int argc;
-     char **argv;
+     pointer puuconf ATTRIBUTE_UNUSED;
+     int argc ATTRIBUTE_UNUSED;
+     char **argv ATTRIBUTE_UNUSED;
      pointer pvar;
-     pointer pinfo;     
+     pointer pinfo ATTRIBUTE_UNUSED; 
 {
   boolean *pf = (boolean *) pvar;
 
@@ -739,6 +745,7 @@ uqdo_xqt_file (puuconf, zfile, zbase, qsys, zlocalname, zcmd, pfprocessed)
   fQsend_input = FALSE;
   fQuse_exec = FALSE;
   zQstatus_file = NULL;
+  fQquoted = FALSE;
 #if ALLOW_SH_EXECUTION
   fQuse_sh = FALSE;
 #endif
@@ -788,6 +795,37 @@ uqdo_xqt_file (puuconf, zfile, zbase, qsys, zlocalname, zcmd, pfprocessed)
 	}
 
       return;
+    }
+
+  if (fQquoted)
+    {
+      if (azQargs != NULL)
+	{
+	  for (i = 0; azQargs[i] != NULL; ++i)
+	    (void) cescape (azQargs[i]);
+	}
+      if (zQcmd != NULL)
+	(void) cescape (zQcmd);
+      if (zQinput != NULL)
+	(void) cescape (zQinput);
+      if (zQoutfile != NULL)
+	(void) cescape (zQoutfile);
+      if (zQoutsys != NULL)
+	(void) cescape (zQoutsys);
+      for (i = 0; i < cQfiles; ++i)
+	{
+	  (void) cescape (azQfiles[i]);
+	  if (azQfiles_to[i] != NULL)
+	    (void) cescape (azQfiles_to[i]);
+	}
+      if (zQrequestor != NULL)
+	(void) cescape (zQrequestor);
+      if (zQuser != NULL)
+	(void) cescape ((char *) zQuser);
+      if (zQsystem != NULL)
+	(void) cescape ((char *) zQsystem);
+      if (zQstatus_file != NULL)
+	(void) cescape ((char *) zQstatus_file);
     }
 
   iclean = 0;
@@ -917,42 +955,76 @@ uqdo_xqt_file (puuconf, zfile, zbase, qsys, zlocalname, zcmd, pfprocessed)
     {
       char *zfrom, *zto;
       boolean fmany;
+      boolean finoptions;
       char **azargs;
       const char *zuser;
 
       zfrom = NULL;
       zto = NULL;
       fmany = FALSE;
+      finoptions = TRUE;
 
       /* Skip all the options, and get the from and to specs.  We
-	 don't permit multiple arguments.  */
+	 don't permit multiple arguments.  We have to do mini-getopt
+	 processing here.  */
       for (i = 1; azQargs[i] != NULL; i++)
 	{
-	  if (azQargs[i][0] == '-')
+	  if (azQargs[i][0] == '-' && finoptions)
 	    {
-	      char *zopts;
-
-	      for (zopts = azQargs[i] + 1; *zopts != '\0'; zopts++)
+	      if (azQargs[i][1] == '-')
 		{
-		  /* The -g, -n, and -s options take an argument.  */
-		  if (*zopts == 'g' || *zopts == 'n' || *zopts == 's')
+		  if (azQargs[i][2] == '\0')
+		    finoptions = FALSE;
+		  /* The --grade, --notify, and --status options take
+                     an argument.  */
+		  else if (strncmp (azQargs[i] + 2, "g", 1) == 0
+		      || strncmp (azQargs[i] + 2, "not", 3) == 0
+		      || strncmp (azQargs[i] + 2, "s", 1) == 0)
 		    {
-		      if (zopts[1] == '\0')
+		      if (strchr (azQargs[i] + 2, '=') == NULL)
 			++i;
-		      break;
 		    }
-		  /* The -I, -u and -x options are not permitted.  */
-		  if (*zopts == 'I' || *zopts == 'u' || *zopts == 'x')
+		  /* The --config, --user, and --debug options are not
+                     permitted.  */
+		  else if (strncmp (azQargs[i] + 2, "con", 3) == 0
+			   || strncmp (azQargs[i] + 2, "us", 2) == 0
+			   || strncmp (azQargs[i] + 2, "de", 2) == 0)
 		    {
-		      *zopts = 'r';
-		      if (zopts[1] != '\0')
-			zopts[1] = '\0';
-		      else
+		      azQargs[i][1] = 'r';
+		      azQargs[i][2] = '\0';
+		      if (strchr (azQargs[i] + 3, '=') == NULL)
 			{
 			  ++i;
 			  azQargs[i] = zbufcpy ("-r");
 			}
-		      break;
+		    }
+		}
+	      else
+		{
+		  char *zopts;
+
+		  for (zopts = azQargs[i] + 1; *zopts != '\0'; zopts++)
+		    {
+		      /* The -g, -n, and -s options take an argument.  */
+		      if (*zopts == 'g' || *zopts == 'n' || *zopts == 's')
+			{
+			  if (zopts[1] == '\0')
+			    ++i;
+			  break;
+			}
+		      /* The -I, -u and -x options are not permitted.  */
+		      if (*zopts == 'I' || *zopts == 'u' || *zopts == 'x')
+			{
+			  *zopts = 'r';
+			  if (zopts[1] != '\0')
+			    zopts[1] = '\0';
+			  else
+			    {
+			      ++i;
+			      azQargs[i] = zbufcpy ("-r");
+			    }
+			  break;
+			}
 		    }
 		}
 	    }
@@ -1002,7 +1074,7 @@ uqdo_xqt_file (puuconf, zfile, zbase, qsys, zlocalname, zcmd, pfprocessed)
 	  /* If "uucp" is not a permitted command, then only uucp
 	     requests with a single source are permitted, since that
 	     is all that will be generated by uucp or uux.  */
-	  if (fmany)
+	  if (fmany || zfrom == NULL || zto == NULL)
 	    {
 	      ulog (LOG_ERROR, "Bad uucp request %s", zQcmd);
 
@@ -1311,9 +1383,9 @@ uqdo_xqt_file (puuconf, zfile, zbase, qsys, zlocalname, zcmd, pfprocessed)
 
   /* Move the required files to the execution directory if necessary.  */
   zinput = zQinput;
-  if (! fsysdep_move_uuxqt_files (cQfiles, (const char **) azQfiles,
+  if (! fsysdep_copy_uuxqt_files (cQfiles, (const char **) azQfiles,
 				  (const char **) azQfiles_to,
-				  TRUE, iQlock_seq, &zinput))
+				  iQlock_seq, &zinput))
     {
       /* If we get an error, try again later.  */
       uqcleanup (zfile, iclean &~ (REMOVE_FILE | REMOVE_NEEDED));
@@ -1353,11 +1425,6 @@ uqdo_xqt_file (puuconf, zfile, zbase, qsys, zlocalname, zcmd, pfprocessed)
 			 zoutput, fshell, iQlock_seq, &zerror, &ftemp))
     {
       ubuffree (zfullcmd);
-
-      (void) fsysdep_move_uuxqt_files (cQfiles, (const char **) azQfiles,
-				       (const char **) azQfiles_to,
-				       FALSE, iQlock_seq,
-				       (char **) NULL);
 
       if (ftemp)
 	{
@@ -1485,7 +1552,7 @@ uqdo_xqt_file (puuconf, zfile, zbase, qsys, zlocalname, zcmd, pfprocessed)
 	  s.ipos = 0;
 
 	  ubuffree (zsysdep_spool_commands (qoutsys, BDEFAULT_UUX_GRADE,
-					    1, &s));
+					    1, &s, (boolean *) NULL));
 	}
     }
 
@@ -1631,12 +1698,6 @@ uqcleanup (zfile, iflags)
   DEBUG_MESSAGE2 (DEBUG_SPOOLDIR,
 		  "uqcleanup: %s, %d", zfile, iflags);
 
-  if (zQunlock_file != NULL)
-    {
-      (void) fsysdep_unlock_uuxqt_file (zQunlock_file);
-      zQunlock_file = NULL;
-    }
-
   if ((iflags & REMOVE_FILE) != 0)
     (void) remove (zfile);
 
@@ -1649,6 +1710,12 @@ uqcleanup (zfile, iflags)
 	}
       if ((iflags & REMOVE_QINPUT) != 0)
 	(void) remove (zQinput);
+    }
+
+  if (zQunlock_file != NULL)
+    {
+      (void) fsysdep_unlock_uuxqt_file (zQunlock_file);
+      zQunlock_file = NULL;
     }
 
   if ((iflags & FREE_QINPUT) != 0)
@@ -1703,6 +1770,9 @@ fqforward (zfile, pzallowed, zlog, zmail)
      const char *zmail;
 {
   const char *zexclam;
+
+  if (zfile == NULL)
+    return TRUE;
 
   zexclam = strchr (zfile, '!');
   if (zexclam != NULL)

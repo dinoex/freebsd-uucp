@@ -1,7 +1,7 @@
 /* serial.c
    The serial port communication routines for Unix.
 
-   Copyright (C) 1991, 1992, 1993, 1994, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1994, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -122,6 +121,10 @@ const char serial_rcsid[] = "$FreeBSD: src/gnu/libexec/uucp/libunix/serial.c,v 1
 
 #if HAVE_DEV_INFO
 #include <sys/dev.h>
+#endif
+
+#if HAVE_SYS_TERMIOX_H
+#include <sys/termiox.h>
 #endif
 
 /* Get definitions for both O_NONBLOCK and O_NDELAY.  */
@@ -238,16 +241,17 @@ static void usserial_free P((struct sconnection *qconn));
 static boolean fsserial_lockfile P((boolean flok,
 				    const struct sconnection *));
 static boolean fsserial_lock P((struct sconnection *qconn,
-				boolean fin));
+				boolean fin, boolean fuser));
 static boolean fsserial_unlock P((struct sconnection *qconn));
 static boolean fsserial_open P((struct sconnection *qconn, long ibaud,
-				boolean fwait, enum tclocal_setting tlocal));
+				boolean fwait, boolean fuser,
+				enum tclocal_setting tlocal));
 static boolean fsstdin_open P((struct sconnection *qconn, long ibaud,
-			       boolean fwait));
+			       boolean fwait, boolean fuser));
 static boolean fsmodem_open P((struct sconnection *qconn, long ibaud,
-			       boolean fwait));
+			       boolean fwait, boolean fuser));
 static boolean fsdirect_open P((struct sconnection *qconn, long ibaud,
-				boolean fwait));
+				boolean fwait, boolean fuser));
 static boolean fsblock P((struct ssysdep_conn *q, boolean fblock));
 static boolean fsserial_close P((struct ssysdep_conn *q));
 static boolean fsstdin_close P((struct sconnection *qconn,
@@ -359,7 +363,7 @@ volatile sig_atomic_t fSalarm;
 
 static RETSIGTYPE
 usalarm (isig)
-     int isig;
+     int isig ATTRIBUTE_UNUSED;
 {
 #if ! HAVE_SIGACTION && ! HAVE_SIGVEC && ! HAVE_SIGSET
   (void) signal (isig, usalarm);
@@ -634,9 +638,9 @@ fsserial_lockfile (flok, qconn)
 	{
 	  char *zl;
 
-	  for (zl = zalc + sizeof LCK_TEMPLATE - 1; *zl != '\0'; zl++)
-	    if (isupper (*zl))
-	      *zl = tolower (*zl);
+	  zl = zalc + sizeof LCK_TEMPLATE + clen - 2;
+	  if (isupper (*zl))
+	    *zl = tolower (*zl);
 	}
 #endif
 	z = zalc;
@@ -730,9 +734,10 @@ fsserial_lockfile (flok, qconn)
    open because we can't fail out if it is locked then.  */
 
 static boolean
-fsserial_lock (qconn, fin)
+fsserial_lock (qconn, fin, fuser)
      struct sconnection *qconn;
      boolean fin;
+     boolean fuser;
 {
   if (! fsserial_lockfile (TRUE, qconn))
     return FALSE;
@@ -742,6 +747,8 @@ fsserial_lock (qconn, fin)
   {
     struct ssysdep_conn *qsysdep;
     int iflag;
+    uid_t ieuid;
+    gid_t iegid;
 
     qsysdep = (struct ssysdep_conn *) qconn->psysdep;
 
@@ -749,6 +756,15 @@ fsserial_lock (qconn, fin)
       iflag = 0;
     else
       iflag = iSunblock;
+
+    if (fuser)
+      {
+	if (! fsuser_perms (&ieuid, &iegid))
+	  {
+	    (void) fsserial_lockfile (FALSE, qconn);
+	    return FALSE;
+	  }
+      }
 
     qsysdep->o = open (qsysdep->zdevice, O_RDWR | iflag);
     if (qsysdep->o < 0)
@@ -763,9 +779,25 @@ fsserial_lock (qconn, fin)
 #endif
 	if (qsysdep->o < 0)
 	  {
-	    if (errno != EBUSY)
+	    int ierr;
+
+	    ierr = errno;
+	    if (fuser)
+	      (void) fsuucp_perms ((long) ieuid, (long) iegid);
+	    if (ierr != EBUSY)
 	      ulog (LOG_ERROR, "open (%s): %s", qsysdep->zdevice,
-		    strerror (errno));
+		    strerror (ierr));
+	    (void) fsserial_lockfile (FALSE, qconn);
+	    return FALSE;
+	  }
+      }
+
+    if (fuser)
+      {
+	if (! fsuucp_perms ((long) ieuid, (long) iegid))
+	  {
+	    (void) close (qsysdep->o);
+	    qsysdep->o = -1;
 	    (void) fsserial_lockfile (FALSE, qconn);
 	    return FALSE;
 	  }
@@ -924,6 +956,53 @@ static struct sbaud_table
 #ifdef B230400
   { B230400, 230400 },
 #endif
+#ifdef B230400
+  { B230400, 230400 },
+#else
+#ifdef _B230400
+  { _B230400, 230400 },
+#endif /* _B230400 */
+#endif /* ! defined (B230400) */
+#ifdef B460800
+  { B460800, 460800 },
+#else
+#ifdef _B460800
+  { _B460800, 460800 },
+#endif /* _B460800 */
+#endif /* ! defined (B460800) */
+#ifdef B500000
+  { B500000, 500000 },
+#endif
+#ifdef B576000
+  { B576000, 576000 },
+#endif
+#ifdef B921600
+  { B921600, 921600 },
+#endif
+#ifdef B1000000
+  { B1000000, 1000000 },
+#endif
+#ifdef B1152000
+  { B1152000, 1152000 },
+#endif
+#ifdef B1500000
+  { B1500000, 1500000 },
+#endif
+#ifdef B2000000
+  { B2000000, 2000000 },
+#endif
+#ifdef B2500000
+  { B2500000, 2500000 },
+#endif
+#ifdef B3000000
+  { B3000000, 3000000 },
+#endif
+#ifdef B3500000
+  { B3500000, 3500000 },
+#endif
+#ifdef B4000000
+  { B4000000, 4000000 },
+#endif
   { B0, 0 }
 };
 
@@ -937,15 +1016,16 @@ static int cSmin;
 
 /* Open a serial line.  This sets the terminal settings.  We begin in
    seven bit mode and let the protocol change if necessary.  If fwait
-   is FALSE we open the terminal in non-blocking mode.  If flocal is
-   TRUE we set CLOCAL on the terminal when using termio[s]; this is
-   supposedly required on some versions of BSD/386.  */
+   is FALSE we open the terminal in non-blocking mode.  If fuser is
+   true we open the port using the user's permissions.  The tlocal
+   parameter indicates whether to set, clear, or ignore CLOCAL.  */
 
 static boolean
-fsserial_open (qconn, ibaud, fwait, tlocal)
+fsserial_open (qconn, ibaud, fwait, fuser, tlocal)
      struct sconnection *qconn;
      long ibaud;
      boolean fwait;
+     boolean fuser;
      enum tclocal_setting tlocal;
 {
   struct ssysdep_conn *q;
@@ -985,7 +1065,7 @@ fsserial_open (qconn, ibaud, fwait, tlocal)
   ib = B0;
   if (ibaud != 0)
     {
-      int i;
+      size_t i;
 
       for (i = 0; i < CBAUD_TABLE; i++)
 	if (asSbaud_table[i].ibaud == ibaud)
@@ -1002,12 +1082,20 @@ fsserial_open (qconn, ibaud, fwait, tlocal)
   if (q->o < 0)
     {
       int iflag;
+      uid_t ieuid;
+      gid_t iegid;
 
       if (fwait)
 	iflag = 0;
       else
 	iflag = iSunblock;
 
+      if (fuser)
+	{
+	  if (! fsuser_perms (&ieuid, &iegid))
+	    return FALSE;
+	}
+	  
       q->o = open (q->zdevice, O_RDWR | iflag);
       if (q->o < 0)
 	{
@@ -1020,10 +1108,21 @@ fsserial_open (qconn, ibaud, fwait, tlocal)
 #endif
 	  if (q->o < 0)
 	    {
+	      int ierr;
+
+	      ierr = errno;
+	      if (fuser)
+		(void) fsuucp_perms ((long) ieuid, (long) iegid);
 	      ulog (LOG_ERROR, "open (%s): %s", q->zdevice,
-		    strerror (errno));
+		    strerror (ierr));
 	      return FALSE;
 	    }
+	}
+
+      if (fuser)
+	{
+	  if (! fsuucp_perms ((long) ieuid, (long) iegid))
+	    return FALSE;
 	}
 
       if (fcntl (q->o, F_SETFD, fcntl (q->o, F_GETFD, 0) | FD_CLOEXEC) < 0)
@@ -1042,6 +1141,9 @@ fsserial_open (qconn, ibaud, fwait, tlocal)
       return FALSE;
     }
   q->iwr_flags = -1;
+
+  if (! fsblock (q, TRUE))
+    return FALSE;
 
   if (! fgetterminfo (q->o, &q->sorig))
     {
@@ -1185,12 +1287,13 @@ fsserial_open (qconn, ibaud, fwait, tlocal)
     q->ibaud = ibaud;
   else
     {
-      int i;
+      size_t i;
 
       q->ibaud = (long) 1200;
       for (i = 0; i < CBAUD_TABLE; i++)
 	{
-	  if (asSbaud_table[i].icode == ib)
+	  if (asSbaud_table[i].icode == ib
+	      && asSbaud_table[i].ibaud != 0)
 	    {
 	      q->ibaud = asSbaud_table[i].ibaud;
 	      break;
@@ -1209,10 +1312,11 @@ fsserial_open (qconn, ibaud, fwait, tlocal)
    call to fsblock.  */
 
 static boolean
-fsstdin_open (qconn, ibaud, fwait)
+fsstdin_open (qconn, ibaud, fwait, fuser)
      struct sconnection *qconn;
      long ibaud;
      boolean fwait;
+     boolean fuser;
 {
   struct ssysdep_conn *q;
 
@@ -1221,7 +1325,7 @@ fsstdin_open (qconn, ibaud, fwait)
   q->owr = 1;
 
   q->o = q->ord;
-  if (! fsserial_open (qconn, ibaud, fwait, IGNORE_CLOCAL))
+  if (! fsserial_open (qconn, ibaud, fwait, fuser, IGNORE_CLOCAL))
     return FALSE;
   q->iwr_flags = fcntl (q->owr, F_GETFL, 0);
   if (q->iwr_flags < 0)
@@ -1235,10 +1339,11 @@ fsstdin_open (qconn, ibaud, fwait)
 /* Open a modem port.  */
 
 static boolean
-fsmodem_open (qconn, ibaud, fwait)
+fsmodem_open (qconn, ibaud, fwait, fuser)
      struct sconnection *qconn;
      long ibaud;
      boolean fwait;
+     boolean fuser;
 {
   struct uuconf_modem_port *qm;
 
@@ -1246,7 +1351,7 @@ fsmodem_open (qconn, ibaud, fwait)
   if (ibaud == (long) 0)
     ibaud = qm->uuconf_ibaud;
 
-  if (! fsserial_open (qconn, ibaud, fwait,
+  if (! fsserial_open (qconn, ibaud, fwait, fuser,
 		       fwait ? CLEAR_CLOCAL : SET_CLOCAL))
     return FALSE;
 
@@ -1265,17 +1370,18 @@ fsmodem_open (qconn, ibaud, fwait)
 /* Open a direct port.  */
 
 static boolean
-fsdirect_open (qconn, ibaud, fwait)
+fsdirect_open (qconn, ibaud, fwait, fuser)
      struct sconnection *qconn;
      long ibaud;
      boolean fwait;
+     boolean fuser;
 {
   struct uuconf_direct_port *qd;
 
   qd = &qconn->qport->uuconf_u.uuconf_sdirect;
   if (ibaud == (long) 0)
     ibaud = qd->uuconf_ibaud;
-  if (! fsserial_open (qconn, ibaud, fwait,
+  if (! fsserial_open (qconn, ibaud, fwait, fuser,
 		       qd->uuconf_fcarrier ? CLEAR_CLOCAL : SET_CLOCAL))
     return FALSE;
 
@@ -1331,12 +1437,22 @@ fsblock (qs, fblock)
       else
 	iwant = qs->iwr_flags | iSunblock;
 
-      if (fcntl (qs->owr, F_SETFL, iwant) < 0)
+      isys = fcntl (qs->owr, F_SETFL, iwant);
+      if (isys < 0)
 	{
-	  /* We don't bother to fix up iSunblock here, since we
-	     succeeded above.  */
-	  ulog (LOG_ERROR, "fcntl: %s", strerror (errno));
-	  return FALSE;
+#if O_NONBLOCK != 0
+	  if (! fblock && iSunblock != O_NONBLOCK && errno == EINVAL)
+	    {
+	      iSunblock = O_NONBLOCK;
+	      iwant = qs->iwr_flags | O_NONBLOCK;
+	      isys = fcntl (qs->owr, F_SETFL, iwant);
+	    }
+#endif
+	  if (isys < 0)
+	    {
+	      ulog (LOG_ERROR, "fcntl: %s", strerror (errno));
+	      return FALSE;
+	    }
 	}
 
       qs->iwr_flags = iwant;
@@ -1403,9 +1519,9 @@ fsserial_close (q)
 static boolean
 fsstdin_close (qconn, puuconf, qdialer, fsuccess)
      struct sconnection *qconn;
-     pointer puuconf;
-     struct uuconf_dialer *qdialer;
-     boolean fsuccess;
+     pointer puuconf ATTRIBUTE_UNUSED;
+     struct uuconf_dialer *qdialer ATTRIBUTE_UNUSED;
+     boolean fsuccess ATTRIBUTE_UNUSED;
 {
   struct ssysdep_conn *qsysdep;
 
@@ -1571,9 +1687,9 @@ fsmodem_close (qconn, puuconf, qdialer, fsuccess)
 static boolean
 fsdirect_close (qconn, puuconf, qdialer, fsuccess)
      struct sconnection *qconn;
-     pointer puuconf;
-     struct uuconf_dialer *qdialer;
-     boolean fsuccess;
+     pointer puuconf ATTRIBUTE_UNUSED;
+     struct uuconf_dialer *qdialer ATTRIBUTE_UNUSED;
+     boolean fsuccess ATTRIBUTE_UNUSED;
 {
   return fsserial_close ((struct ssysdep_conn *) qconn->psysdep);
 }
@@ -1823,10 +1939,11 @@ fsmodem_carrier (qconn, fcarrier)
 
 /* Tell the port to use hardware flow control.  There is no standard
    mechanism for controlling this.  This implementation supports
-   CRTSCTS on SunOS, RTS/CTSFLOW on 386(ish) unix, CTSCD on the 3b1,
-   CCTS_OFLOW/CRTS_IFLOW on BSDI, TXADDCD/TXDELCD on AIX, and IRTS on
-   NCR Tower.  If you know how to do it on other systems, please
-   implement it and send me the patches.  */
+   CRTSCTS and CRTSXOFF on SunOS/Solaris, RTS/CTSFLOW on 386(ish)
+   unix, CTSCD on the 3b1, CCTS_OFLOW/CRTS_IFLOW on BSDI,
+   TXADDCD/TXDELCD on AIX, IRTS on NCR Tower, and TCGETX/TCSETX on
+   HP/UX.  If you know how to do it on other systems, please implement
+   it and send me the patches.  */
 
 static boolean
 fsserial_hardflow (qconn, fhardflow)
@@ -1880,6 +1997,9 @@ fsserial_hardflow (qconn, fhardflow)
 #ifdef CRTSCTS
       q->snew.c_cflag |= CRTSCTS;
 #endif /* defined (CRTSCTS) */
+#ifdef CRTSXOFF
+      q->snew.c_cflag |= CRTSXOFF;
+#endif /* defined (CRTSXOFF) */
 #ifdef CTSCD
       q->snew.c_cflag |= CTSCD;
 #endif /* defined (CTSCD) */
@@ -1896,6 +2016,29 @@ fsserial_hardflow (qconn, fhardflow)
 		strerror (errno));
 	  return FALSE;
 	}
+#if HAVE_SYS_TERMIOX
+#ifdef TCGETX
+      {
+	struct termiox tx;
+
+	if (ioctl (q->o, TCGETX, &tx) < 0)
+	  {
+	    ulog (LOG_ERROR,
+		  "Can't enable hardware flow control: ioctl (TCGETX): %s",
+		  strerror (errno));
+	    return FALSE;
+	  }
+	tx.x_hflag |= RTSXOFF | CTSXON;
+	if (ioctl (q->o, TCSETX, &tx) < 0)
+	  {
+	    ulog (LOG_ERROR,
+		  "Can't enable hardware flow control: ioctl (TCSETX): %s",
+		  strerror (errno));
+	    return FALSE;
+	  }
+      }
+#endif /* TCGETX */
+#endif /* HAVE_SYS_TERMIOX */
 #endif /* ! HAVE_TXADDCD */
     }
   else
@@ -1913,6 +2056,9 @@ fsserial_hardflow (qconn, fhardflow)
 #ifdef CRTSCTS
       q->snew.c_cflag &=~ CRTSCTS;
 #endif /* defined (CRTSCTS) */
+#ifdef CRTSXOFF
+      q->snew.c_cflag &=~ CRTSXOFF;
+#endif /* defined (CRTSXOFF) */
 #ifdef CTSCD
       q->snew.c_cflag &=~ CTSCD;
 #endif /* defined (CTSCD) */
@@ -1929,6 +2075,29 @@ fsserial_hardflow (qconn, fhardflow)
 		strerror (errno));
 	  return FALSE;
 	}
+#if HAVE_SYS_TERMIOX
+#ifdef TCGETX
+      {
+	struct termiox tx;
+
+	if (ioctl (q->o, TCGETX, &tx) < 0)
+	  {
+	    ulog (LOG_ERROR,
+		  "Can't disable hardware flow control: ioctl (TCGETX): %s",
+		  strerror (errno));
+	    return FALSE;
+	  }
+	tx.x_hflag &=~ (RTSXOFF | CTSXON);
+	if (ioctl (q->o, TCSETX, &tx) < 0)
+	  {
+	    ulog (LOG_ERROR,
+		  "Can't disable hardware flow control: ioctl (TCSETX): %s",
+		  strerror (errno));
+	    return FALSE;
+	  }
+      }
+#endif /* TCGETX */
+#endif /* HAVE_SYS_TERMIOX */
 #endif /* ! HAVE_TXADDCD */
     }
 #endif /* HAVE_HARDFLOW */
@@ -2319,7 +2488,7 @@ fsysdep_conn_read (qconn, zbuf, pclen, cmin, ctimeout, freport)
 	}
 
       cwant -= cgot;
-      if (cgot >= cmin)
+      if ((size_t) cgot >= cmin)
 	cmin = 0;
       else
 	cmin -= cgot;
@@ -2767,23 +2936,55 @@ fsysdep_conn_io (qconn, zwrite, pcwrite, zread, pcread)
 	{
 #if HAVE_SELECT
 	  struct timeval stime;
-	  int imask;
+#ifdef FD_ZERO
+	  fd_set smask;
+#else
+	  int smask;
+#endif
 	  int c;
 
 	  /* We didn't write any data.  Call select.  We use a timeout
-             long enough for 1024 bytes to be sent.
+             long enough for 1024 bytes to be sent.  But we don't wait
+             longer than the times it takes to receive cread bytes, in
+             case our read buffer is small.
 	       secs/kbyte == (1024 bytes/kbyte * 10 bits/byte) / baud bits/sec
 	       usecs/kbyte == (((1024 bytes/kbyte * 1000000 usecs/sec)
 	                        / baud bits/sec)
 			       * 10 bits/byte)
-	     */
-	  stime.tv_sec = (long) 10240 / (q->ibaud? q->ibaud: (long)1200);
-	  stime.tv_usec = ((((long) 1024000000 / (q->ibaud? q->ibaud: (long)1200)) * (long) 10)
-			   % (long) 1000000);
 
-	  imask = 1 << q->o;
-	  if (imask == 0)
+	     */
+	  if (q->fterminal)
+	    {
+	      unsigned long cwait;
+
+	      cwait = 1024;
+	      if (cwait > cread)
+		cwait = cread;
+	      stime.tv_sec = (cwait * 10) / (q->ibaud? q->ibaud: (long)1200);
+	      stime.tv_usec = ((((cwait * 1000000) / (q->ibaud? q->ibaud: (long)1200)) * 10)
+			       % 1000000);
+	    }
+	  else
+	    {
+	      /* This is some sort of network connection.  We can't
+                 estimate how long it will take to write data.  It
+                 also doesn't matter as much, as most systems will
+                 buffer much more incoming network data than they will
+                 incoming serial data.  Sleep for a second, although
+                 normally the select will return sonner because we can
+                 write more data.  */
+	      stime.tv_sec = 1;
+	      stime.tv_usec = 0;
+	    }
+
+#ifdef FD_ZERO
+	  FD_ZERO (&smask);
+	  FD_SET (q->o, &smask);
+#else
+	  smask = 1 << q->o;
+	  if (smask == 0)
 	    ulog (LOG_FATAL, "fsysdep_conn_io: File descriptors too large");
+#endif
 
 	  /* If we've received a signal, don't continue.  */
 	  if (FGOT_QUIT_SIGNAL ())
@@ -2793,7 +2994,7 @@ fsysdep_conn_io (qconn, zwrite, pcwrite, zread, pcread)
 
 	  /* We don't bother to loop on EINTR.  If we get a signal, we
              just loop around and try the read and write again.  */
-	  c = select (q->o + 1, (pointer) NULL, (pointer) &imask,
+	  c = select (q->o + 1, (pointer) NULL, (pointer) &smask,
 		      (pointer) NULL, &stime);
 	  if (c < 0 && errno == EINTR)
 	    {
@@ -2850,7 +3051,10 @@ fsysdep_conn_io (qconn, zwrite, pcwrite, zread, pcread)
                  we don't need to use the catch stuff, since we know
                  that HAVE_RESTARTABLE_SYSCALLS is 0.  */
 	      usset_signal (SIGALRM, usalarm, TRUE, (boolean *) NULL);
-	      alarm ((int) ((long) 10240 / (q->ibaud? q->ibaud: (long)1200)) + 1);
+	      if (q->fterminal)
+		alarm ((int) ((long) 10240 / (q->ibaud? q->ibaud: (long)1200)) + 1);
+	      else
+		alarm (1);
 
 	      /* There is a race condition here: on a severely loaded
                  system, we could get the alarm before we start the
@@ -2976,8 +3180,8 @@ fsserial_set (qconn, tparity, tstrip, txonxoff)
 {
   register struct ssysdep_conn *q;
   boolean fchanged, fdo;
-  int iset = 0;
-  int iclear = 0;
+  unsigned int iset = 0;
+  unsigned int iclear = 0;
 
   q = (struct ssysdep_conn *) qconn->psysdep;
 

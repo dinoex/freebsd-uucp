@@ -1,7 +1,7 @@
 /* splcmd.c
    Spool a command.
 
-   Copyright (C) 1991, 1992, 1993, 1995 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1995, 2002 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
 
-   The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
+   The author of the program may be contacted at ian@airs.com.
    */
 
 #include "uucp.h"
@@ -38,19 +37,23 @@
    holding all the commands passed in.  It returns a jobid.  */
 
 char *
-zsysdep_spool_commands (qsys, bgrade, ccmds, pascmds)
+zsysdep_spool_commands (qsys, bgrade, ccmds, pascmds, pftemp)
      const struct uuconf_system *qsys;
      int bgrade;
      int ccmds;
      const struct scmd *pascmds;
+     boolean *pftemp;
 {
   char abtempfile[sizeof "TMP1234567890"];
   char *ztemp;
   FILE *e;
   int i;
-  const struct scmd *q;
+  const struct scmd *qcmd;
   char *z;
   char *zjobid;
+
+  if (pftemp != NULL)
+    *pftemp = TRUE;
 
 #if DEBUG > 0
   if (! UUCONF_GRADE_LEGAL (bgrade))
@@ -71,8 +74,21 @@ zsysdep_spool_commands (qsys, bgrade, ccmds, pascmds)
       return NULL;
     }
 
-  for (i = 0, q = pascmds; i < ccmds; i++, q++)
+  for (i = 0, qcmd = pascmds; i < ccmds; i++, qcmd++)
     {
+      boolean fquote;
+      const struct scmd *q;
+      struct scmd squoted;
+
+      fquote = fcmd_needs_quotes (qcmd);
+      if (! fquote)
+	q = qcmd;
+      else
+	{
+	  uquote_cmd (qcmd, &squoted);
+	  q = &squoted;
+	}
+
       switch (q->bcmd)
 	{
 	case 'S':
@@ -100,8 +116,13 @@ zsysdep_spool_commands (qsys, bgrade, ccmds, pascmds)
 	  (void) fclose (e);
 	  (void) remove (ztemp);
 	  ubuffree (ztemp);
+	  if (pftemp != NULL)
+	    *pftemp = FALSE;
 	  return NULL;
 	}
+
+      if (fquote)
+	ufree_quoted_cmd (&squoted);
     }
 
   if (! fstdiosync (e, ztemp))
