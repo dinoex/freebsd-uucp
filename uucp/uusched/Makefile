@@ -1,10 +1,10 @@
 # Makefile for uusched
-# $FreeBSD$
+# $FreeBSD: src/gnu/libexec/uucp/uusched/Makefile,v 1.12 1999/08/27 23:34:01 peter Exp $
 
 BINDIR=		$(bindir)
 CLEANFILES+=	$(ONESHPROG)
 ONESHPROG=	uusched
-MAN8=		uusched.8
+MAN=		uusched.8
 
 all: $(ONESHPROG)
 
