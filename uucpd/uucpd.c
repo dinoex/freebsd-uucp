@@ -45,7 +45,7 @@ static const char copyright[] =
 static char sccsid[] = "@(#)uucpd.c	8.1 (Berkeley) 6/4/93";
 #endif
 static const char rcsid[] =
-  "$FreeBSD: src/libexec/uucpd/uucpd.c,v 1.21 1999/11/06 20:58:44 eivind Exp $";
+  "$FreeBSD: src/libexec/uucpd/uucpd.c,v 1.22 2000/05/14 18:01:05 ume Exp $";
 #endif /* not lint */
 
 /*
@@ -191,7 +191,7 @@ void doit(struct sockaddr *sinp)
 		initgroups(pw->pw_name, pw->pw_gid);
 		chdir(pw->pw_dir);
 		setuid(pw->pw_uid);
-		execl(pw->pw_shell, "uucico", NULL);
+		execl(pw->pw_shell, "uucico", (char *)NULL);
 		syslog(LOG_ERR, "execl: %m");
 		_exit(1);
 	}
