@@ -13,6 +13,6 @@ uusched:	uusched.in
 		$(.CURDIR)/uusched.in > $(.TARGET)
 
 depend:
-	
+	@echo -n
 
 .include <bsd.prog.mk>
