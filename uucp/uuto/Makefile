@@ -12,7 +12,7 @@ $(ONESHPROG): $(ONESHPROG).in Makefile
 		$(.ALLSRC:N*Makefile) > $(.TARGET)
 
 beforeinstall:
-	install -c -o $(BINOWN) -g $(BINGRP) -m $(BINMODE) \
+	${INSTALL} -c -o $(BINOWN) -g $(BINGRP) -m $(BINMODE) \
 		$(ONESHPROG) $(DESTDIR)$(BINDIR)/$(ONESHPROG)
 
 .include <bsd.prog.mk>
