@@ -102,7 +102,7 @@ void dologout(void);
 int readline(char start[], int num, int passw);
 void dologin(struct passwd *pw, struct sockaddr_in *sin);
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	environ = nenv;
 	close(1); close(2);
