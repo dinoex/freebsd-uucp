@@ -8,5 +8,6 @@
 if [ -d /var/spool/uucp -a -f /usr/libexec/uucp/clean.weekly ]; then
     echo ""
     echo "Cleaning up UUCP:"
+
     echo /usr/libexec/uucp/clean.weekly | su daemon
 fi
