@@ -257,6 +257,7 @@ void dologin(struct passwd *pw, struct sockaddr_in *sin)
 	} else
 		strncpy(remotehost, inet_ntoa(sin->sin_addr),
 		    sizeof (remotehost));
+	remotehost[sizeof remotehost - 1] = '\0';
 	/* hack, but must be unique and no tty line */
 	sprintf(line, "uucp%ld", getpid());
 	time(&cur_time);
