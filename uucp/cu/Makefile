@@ -3,7 +3,8 @@
 
 BINDIR=		$(bindir)
 BINOWN=		$(owner)
-BINMODE=        4555
+BINGRP=         dialer
+BINMODE=        6555
 
 PROG=		cu
 SRCS=           cu.c prot.c log.c chat.c conn.c copy.c

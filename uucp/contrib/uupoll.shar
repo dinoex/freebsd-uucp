@@ -497,11 +497,21 @@ static char rcsid[] = "$Id$";
 #endif /* not lint */
 X
 /* $Log$
-/* Revision 1.1.6.1  1995/09/01 06:01:57  davidg
-/* Brought in changes from main branch: updated to UUCP 1.06.1
+/* Revision 1.1.6.2  1996/05/29 22:31:45  jkh
+/* Merge from HEAD, except:
 /*
-/* Reviewed by:	ache
+/* 	Clients that used gnumalloc still do, despite the merge.  We're not
+/* 	bringing phkmalloc over.
 /*
+/* 	Thread stuff left out.
+/*
+/* 	PCCARD support left out.
+/*
+# Revision 1.1.6.1  1995/09/01  06:01:57  davidg
+# Brought in changes from main branch: updated to UUCP 1.06.1
+#
+# Reviewed by:	ache
+#
 # Revision 1.2  1995/08/19  21:24:34  ache
 # Commit delta: current -> 1.06 + FreeBSD configuration
 #
@@ -1638,11 +1648,21 @@ X  #define CONF
 X
 /* $Id$ */
 /* $Log$
-/* Revision 1.1.6.1  1995/09/01 06:01:57  davidg
-/* Brought in changes from main branch: updated to UUCP 1.06.1
+/* Revision 1.1.6.2  1996/05/29 22:31:45  jkh
+/* Merge from HEAD, except:
 /*
-/* Reviewed by:	ache
+/* 	Clients that used gnumalloc still do, despite the merge.  We're not
+/* 	bringing phkmalloc over.
 /*
+/* 	Thread stuff left out.
+/*
+/* 	PCCARD support left out.
+/*
+# Revision 1.1.6.1  1995/09/01  06:01:57  davidg
+# Brought in changes from main branch: updated to UUCP 1.06.1
+#
+# Reviewed by:	ache
+#
 # Revision 1.2  1995/08/19  21:24:34  ache
 # Commit delta: current -> 1.06 + FreeBSD configuration
 #
@@ -2006,11 +2026,21 @@ static char rcsid[] = "$Id$";
 #endif /* not lint */
 X
 /* $Log$
-/* Revision 1.1.6.1  1995/09/01 06:01:57  davidg
-/* Brought in changes from main branch: updated to UUCP 1.06.1
+/* Revision 1.1.6.2  1996/05/29 22:31:45  jkh
+/* Merge from HEAD, except:
 /*
-/* Reviewed by:	ache
+/* 	Clients that used gnumalloc still do, despite the merge.  We're not
+/* 	bringing phkmalloc over.
 /*
+/* 	Thread stuff left out.
+/*
+/* 	PCCARD support left out.
+/*
+# Revision 1.1.6.1  1995/09/01  06:01:57  davidg
+# Brought in changes from main branch: updated to UUCP 1.06.1
+#
+# Reviewed by:	ache
+#
 # Revision 1.2  1995/08/19  21:24:34  ache
 # Commit delta: current -> 1.06 + FreeBSD configuration
 #

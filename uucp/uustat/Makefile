@@ -3,7 +3,8 @@
 
 BINDIR=		$(bindir)
 BINOWN=		$(owner)
-BINMODE=	4555
+BINGRP=         dialer
+BINMODE=        6555
 
 PROG=		uustat
 SRCS=		uustat.c util.c log.c copy.c
