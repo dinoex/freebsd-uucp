@@ -5,7 +5,8 @@ BINDIR=		$(bindir)
 
 PROG=		uuto
 SRCS=
-NOMAN=
+NOMAN=	yes
+NOOBJ=	yes
 STRIP=
 
 uuto:	uuto.in
