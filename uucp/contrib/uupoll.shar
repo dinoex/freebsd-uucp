@@ -497,9 +497,14 @@ static char rcsid[] = "$Id$";
 #endif /* not lint */
 X
 /* $Log$
-/* Revision 1.2  1995/08/19 21:24:34  ache
-/* Commit delta: current -> 1.06 + FreeBSD configuration
+/* Revision 1.1.6.1  1995/09/01 06:01:57  davidg
+/* Brought in changes from main branch: updated to UUCP 1.06.1
 /*
+/* Reviewed by:	ache
+/*
+# Revision 1.2  1995/08/19  21:24:34  ache
+# Commit delta: current -> 1.06 + FreeBSD configuration
+#
 X * Revision 2.8  1994/04/14  17:22:54  kdburg
 X * corrected misspelled AT_OPTION
 X *
@@ -1633,9 +1638,14 @@ X  #define CONF
 X
 /* $Id$ */
 /* $Log$
-/* Revision 1.2  1995/08/19 21:24:34  ache
-/* Commit delta: current -> 1.06 + FreeBSD configuration
+/* Revision 1.1.6.1  1995/09/01 06:01:57  davidg
+/* Brought in changes from main branch: updated to UUCP 1.06.1
 /*
+/* Reviewed by:	ache
+/*
+# Revision 1.2  1995/08/19  21:24:34  ache
+# Commit delta: current -> 1.06 + FreeBSD configuration
+#
 X * Revision 1.9  1994/04/14  17:24:58  kdburg
 X * added comment to the AT_OPTION
 X *
@@ -1996,9 +2006,14 @@ static char rcsid[] = "$Id$";
 #endif /* not lint */
 X
 /* $Log$
-/* Revision 1.2  1995/08/19 21:24:34  ache
-/* Commit delta: current -> 1.06 + FreeBSD configuration
+/* Revision 1.1.6.1  1995/09/01 06:01:57  davidg
+/* Brought in changes from main branch: updated to UUCP 1.06.1
 /*
+/* Reviewed by:	ache
+/*
+# Revision 1.2  1995/08/19  21:24:34  ache
+# Commit delta: current -> 1.06 + FreeBSD configuration
+#
 X * Revision 2.7  1994/04/14  17:22:04  kdburg
 X * major rework done
 X *
