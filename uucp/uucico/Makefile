@@ -1,7 +1,7 @@
 # Makefile for uucico
 # $Id$
 
-BINDIR=		$(sbindir)
+BINDIR=         $(libxdir)
 BINOWN=		$(owner)
 BINMODE=        4555
 

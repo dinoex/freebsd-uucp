@@ -1,7 +1,7 @@
 # Makefile for uuxqt
 # $Id$
 
-BINDIR=		$(sbindir)
+BINDIR=         $(libxdir)
 BINOWN=		$(owner)
 BINGRP=         $(group)
 BINMODE=        4550
