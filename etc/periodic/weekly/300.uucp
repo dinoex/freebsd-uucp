@@ -20,16 +20,17 @@ case "$weekly_uucp_enable" in
 	    echo '$weekly_uucp_enable is set but /var/spool/uucp' \
 		"doesn't exist"
 	    rc=2
-	elif [ ! -x /usr/libexec/uucp/clean.weekly ]
+	elif [ ! -x /usr/local/etc/uucp/clean.weekly ]
 	then
 	    echo '$weekly_uucp_enable is set but' \
-		"/usr/libexec/uucp/clean.weekly isn't executable"
+		"/usr/local/etc/uucp/clean.weekly isn't executable"
 	    rc=2
 	else
 	    echo ""
 	    echo "Cleaning up UUCP:"
 
-	    echo /usr/libexec/uucp/clean.weekly | su -m daemon && rc=0 || rc=3
+	    echo /usr/local/etc/uucp/clean.weekly |
+		su -m uucp && rc=0 || rc=3
 	fi;;
 
     *)  rc=0;;

@@ -18,9 +18,9 @@ case "$daily_status_uucp_enable" in
 	    echo '$daily_status_uucp_enable is set but /var/spool/uucp' \
 		"doesn't exist"
 	    rc=2
-	elif [ ! -x /usr/bin/uustat ]
+	elif [ ! -x /usr/local/bin/uustat ]
 	then
-	    echo '$daily_status_uucp_enable is set but /usr/bin/uustat' \
+	    echo '$daily_status_uucp_enable is set but /usr/local/bin/uustat' \
 		"isn't executable"
 	    rc=2
 	else

@@ -21,16 +21,16 @@ case "$daily_uuclean_enable" in
 	    echo '$daily_uuclean_enable is set, but /var/spool/uucp' \
 		"doesn't exist"
 	    rc=2
-	elif [ ! -f /etc/uuclean.daily ]
+	elif [ ! -f /usr/local/etc/uucp/clean.daily ]
 	then
-	    echo '$daily_uuclean_enable is set, but /etc/uuclean.daily' \
-		"doesn't exist"
+	    echo '$daily_uuclean_enable is set, but ' \
+		"/usr/local/etc/uucp/clean.daily doesn't exist"
 	    rc=2
 	else
 	    echo ""
 	    echo "Cleaning up UUCP:"
 
-	    echo /etc/uuclean.daily | su -m uucp && rc=0 || rc=3
+	    echo /usr/local/etc/uucp/clean.daily | su -m uucp && rc=0 || rc=3
 	fi;;
 
     *)  rc=0;;
