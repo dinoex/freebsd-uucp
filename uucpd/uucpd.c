@@ -236,7 +236,7 @@ void dologout(void)
 	char line[32];
 
 	while ((pid=wait((int *)&status)) > 0) {
-		sprintf(line, "uucp%ld", pid);
+		sprintf(line, "uucp%ld", (long)pid);
 		logwtmp(line, "", "");
 	}
 }
@@ -261,7 +261,7 @@ void dologin(struct passwd *pw, struct sockaddr_in *sin)
 		    sizeof (remotehost));
 	remotehost[sizeof remotehost - 1] = '\0';
 	/* hack, but must be unique and no tty line */
-	sprintf(line, "uucp%ld", getpid());
+	sprintf(line, "uucp%ld", (long)getpid());
 	time(&cur_time);
 	if ((f = open(_PATH_LASTLOG, O_RDWR)) >= 0) {
 		struct lastlog ll;
