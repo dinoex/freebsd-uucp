@@ -9,6 +9,6 @@ if [ -d /var/spool/uucp -a -f /etc/uuclean.daily ]; then
 	echo ""
 	echo "Cleaning up UUCP:"
 
-	echo /etc/uuclean.daily | su daemon
+	echo /etc/uuclean.daily | su -m uucp
 fi
 
