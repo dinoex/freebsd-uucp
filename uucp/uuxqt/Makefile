@@ -3,7 +3,7 @@
 
 BINDIR=		$(sbindir)
 BINOWN=		$(owner)
-BINMODE=	4555
+BINMODE=        4550
 
 PROG=		uuxqt
 SRCS=		uuxqt.c util.c log.c copy.c
