@@ -12,4 +12,7 @@ uusched:	uusched.in
 	sed -e "s|@BINDIR@|$(bindir)|g" -e "s|@SBINDIR@|$(sbindir)|g" \
 		$(.CURDIR)/uusched.in > $(.TARGET)
 
+depend:
+	
+
 .include <bsd.prog.mk>
