@@ -17,6 +17,7 @@ LIBUUCP=	$(.CURDIR)/../libuucp/libuucp.a
 .endif
 
 VERSION=        1.06.1
+PREFIX?=	/usr/local
 owner=		uucp
 group=          uucp
 bindir=		${PREFIX}/bin
