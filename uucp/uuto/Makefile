@@ -2,17 +2,17 @@
 # $Id$
 
 BINDIR=		$(bindir)
+CLEANFILES+=	$(ONESHPROG)
+ONESHPROG=	uuto
 
-PROG=		uuto
-SRCS=
-NOMAN=	yes
-NOOBJ=	yes
-STRIP=
+all: $(ONESHPROG)
 
-uuto:	uuto.in
+$(ONESHPROG): $(ONESHPROG).in Makefile
 	sed -e "s|@BINDIR@|$(bindir)|g" -e "s|@SBINDIR@|$(sbindir)|g" \
-		$(.CURDIR)/uuto.in > $(.TARGET)
+		$(.ALLSRC:N*Makefile) > $(.TARGET)
 
-depend:
+beforeinstall:
+	install -c -o $(BINOWN) -g $(BINGRP) -m $(BINMODE) \
+		$(ONESHPROG) $(DESTDIR)$(BINDIR)/$(ONESHPROG)
 
 .include <bsd.prog.mk>
