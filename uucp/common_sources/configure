@@ -3939,7 +3939,7 @@ else
   echo "$ac_t""no" 1>&6
 fi
 
-if test $uucp_cv_sys_ftime_ok = yes || test $uucp_cv_sys_ftime_ok = runtime; then
+if test "$uucp_cv_sys_ftime_ok" = yes || test "$uucp_cv_sys_ftime_ok" = runtime; then
   cat >> confdefs.h <<\EOF
 #define HAVE_FTIME 1
 EOF
@@ -5606,7 +5606,7 @@ done
 ac_given_srcdir=$srcdir
 ac_given_INSTALL="$INSTALL"
 
-trap 'rm -fr `echo "Makefile uuconf/Makefile lib/Makefile unix/Makefile config.h" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
+trap 'rm -fr `echo "config.h" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
 EOF
 cat >> $CONFIG_STATUS <<EOF
 
@@ -5721,7 +5721,7 @@ EOF
 
 cat >> $CONFIG_STATUS <<EOF
 
-CONFIG_FILES=\${CONFIG_FILES-"Makefile uuconf/Makefile lib/Makefile unix/Makefile"}
+CONFIG_FILES=\${CONFIG_FILES-""}
 EOF
 cat >> $CONFIG_STATUS <<\EOF
 for ac_file in .. $CONFIG_FILES; do if test "x$ac_file" != x..; then
