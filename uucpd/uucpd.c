@@ -121,16 +121,8 @@ void main(int argc, char **argv)
 void badlogin(char *name, struct sockaddr_in *sin)
 {
 	char remotehost[MAXHOSTNAMELEN];
-	struct hostent *hp = gethostbyaddr((char *)&sin->sin_addr,
-		sizeof (struct in_addr), AF_INET);
 
-	if (hp) {
-		strncpy(remotehost, hp->h_name, sizeof (remotehost));
-		endhostent();
-	} else
-		strncpy(remotehost, inet_ntoa(sin->sin_addr),
-		    sizeof (remotehost));
-
+	realhostname(remotehost, sizeof remotehost - 1, &sin->sin_addr);
 	remotehost[sizeof remotehost - 1] = '\0';
 
 	syslog(LOG_NOTICE, "LOGIN FAILURE FROM %s", remotehost);
@@ -251,19 +243,13 @@ void dologout(void)
 void dologin(struct passwd *pw, struct sockaddr_in *sin)
 {
 	char line[32];
-	char remotehost[MAXHOSTNAMELEN];
+	char remotehost[UT_HOSTSIZE + 1];
 	int f;
 	time_t cur_time;
-	struct hostent *hp = gethostbyaddr((char *)&sin->sin_addr,
-		sizeof (struct in_addr), AF_INET);
 
-	if (hp) {
-		strncpy(remotehost, hp->h_name, sizeof (remotehost));
-		endhostent();
-	} else
-		strncpy(remotehost, inet_ntoa(sin->sin_addr),
-		    sizeof (remotehost));
+	realhostname(remotehost, sizeof remotehost - 1, &sin->sin_addr);
 	remotehost[sizeof remotehost - 1] = '\0';
+
 	/* hack, but must be unique and no tty line */
 	sprintf(line, "uucp%ld", (long)getpid());
 	time(&cur_time);
