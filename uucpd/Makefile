@@ -11,6 +11,9 @@ DPADD=  ${LIBCRYPT} ${LIBUTIL}
 CFLAGS+= -DPREFIX=\"${PREFIX}\"
 
 .if defined(WITH_PAM)
+.if exists(/usr/include/security/pam_constants.h)
+CFLAGS+= -DUSE_PAM_NEW
+.endif
 CFLAGS+= -DUSE_PAM
 DPADD+= ${LIBPAM}
 LDADD+= ${MINUSLPAM}

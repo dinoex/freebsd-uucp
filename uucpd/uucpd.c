@@ -80,7 +80,9 @@ static const char rcsid[] =
 
 #ifdef USE_PAM
 #include <security/pam_appl.h>
+#ifndef USE_PAM_NEW
 #include <security/pam_misc.h>
+#endif /* USE_PAM_NEW */
 #endif /* USE_PAM */
 
 #ifdef USE_PAM
@@ -267,7 +269,11 @@ void doit(struct sockaddr *sinp)
 				       pam_strerror(pamh, e));
 			}
 			/* Tell PAM that our parent cares for us */
+#ifdef USE_PAM_NEW
+			if ((e = pam_end(pamh, PAM_SILENT)) != PAM_SUCCESS)
+#else
 			if ((e = pam_end(pamh, PAM_DATA_SILENT)) != PAM_SUCCESS)
+#endif /* USE_PAM_NEW */
 				syslog(LOG_ERR, "pam_end: %s",
 				       pam_strerror(pamh, e));
 		}
