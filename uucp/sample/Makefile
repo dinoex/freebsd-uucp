@@ -5,8 +5,8 @@ FILES=	call.sample config.sample dial.sample dialcode.sample passwd.sample \
 
 NOOBJ=	noobj
 
-BINOWN=	$(owner)
-BINGRP=	$(group)
+BINOWN=	$(uucpowner)
+BINGRP=	$(uucpgroup)
 
 all clean cleandir depend lint tags:
 

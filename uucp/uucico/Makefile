@@ -2,7 +2,7 @@
 # $FreeBSD: src/gnu/libexec/uucp/uucico/Makefile,v 1.12 1999/08/27 23:33:47 peter Exp $
 
 BINDIR=         $(libxdir)
-BINOWN=		$(owner)
+BINOWN=		$(uucpowner)
 BINGRP=         dialer
 BINMODE=        6555
 
@@ -13,7 +13,7 @@ SRCS=		uucico.c trans.c send.c rec.c xcmd.c prot.c protg.c protf.c \
 LDADD+=		$(LIBUNIX) $(LIBUUCONF) $(LIBUUCP)
 DPADD+=		$(LIBUNIX) $(LIBUUCONF) $(LIBUUCP)
 CFLAGS+=	-I$(.CURDIR)/../common_sources\
-		-DVERSION=\"$(VERSION)\" -DOWNER=\"$(owner)\"
+		-DVERSION=\"$(VERSION)\" -DOWNER=\"$(uucpowner)\"
 
 MAN=		uucico.8
 MAN8=		uucico.8

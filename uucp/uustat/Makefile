@@ -2,7 +2,7 @@
 # $FreeBSD$
 
 BINDIR=		$(bindir)
-BINOWN=		$(owner)
+BINOWN=		$(uucpowner)
 BINGRP=         dialer
 BINMODE=        6555
 

@@ -2,7 +2,7 @@
 # $FreeBSD$
 
 BINDIR=		$(bindir)
-BINOWN=		$(owner)
+BINOWN=		$(uucpowner)
 BINMODE=        4555
 
 PROG=		uux
