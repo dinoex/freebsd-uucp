@@ -16,10 +16,10 @@ LIBUUCP=	$(.OBJDIR)/../libuucp/libuucp.a
 LIBUUCP=	$(.CURDIR)/../libuucp/libuucp.a
 .endif
 
-VERSION=        1.06.1.6
+VERSION=        1.06.1.7
 PREFIX?=	/usr/local
-uccpowner=	uucp
-uccpgroup=	uucp
+uucpowner=	uucp
+uucpgroup=	uucp
 bindir=		${PREFIX}/bin
 sbindir=        ${PREFIX}/sbin
 libxdir=        ${PREFIX}/libexec/uucp
