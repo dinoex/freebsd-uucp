@@ -9,4 +9,10 @@ MANDIR=	${PREFIX}/man/man
 LDADD=  -lcrypt -lutil
 DPADD=  ${LIBCRYPT} ${LIBUTIL}
 
+.if exists(/usr/include/security/pam_modules.h)
+CFLAGS+= -DUSE_PAM
+DPADD+= ${LIBPAM}
+LDADD+= ${MINUSLPAM}
+.endif
+
 .include <bsd.prog.mk>
