@@ -2,9 +2,6 @@
 # $Id$
 
 BINDIR=		$(sbindir)
-BINOWN=		$(owner)
-BINGRP=         $(group)
-BINMODE=        550
 
 PROG=		uuconv
 SRCS=		uuconv.c 
