@@ -1,4 +1,4 @@
-# $FreeBSD: src/etc/periodic/daily/Makefile,v 1.5 2000/10/29 06:57:57 dougb Exp $
+# $FreeBSD: src/etc/periodic/daily/Makefile,v 1.6 2001/02/19 07:12:37 ache Exp $
 
 BIN=    100.clean-disks \
 	110.clean-tmps \
@@ -19,6 +19,7 @@ BIN=    100.clean-disks \
 	440.status-mailq \
 	450.status-security \
 	460.status-mail-rejects \
+	470.status-named \
 	500.queuerun \
 	999.local
 .if !defined(NOUUCP)
