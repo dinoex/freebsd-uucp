@@ -14,7 +14,7 @@ DPADD+=		$(LIBUNIX) $(LIBUUCONF) $(LIBUUCP)
 CFLAGS+=	-I$(.CURDIR)/../common_sources\
 		-DVERSION=\"$(VERSION)\"
 
-MAN8=		uucico.0
+MAN8=		uucico.8
 
 .include <bsd.prog.mk>
 .PATH: $(.CURDIR)/../common_sources
