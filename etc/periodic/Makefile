@@ -1,5 +1,5 @@
 # $FreeBSD$
 
-SUBDIR=	daily weekly monthly
+SUBDIR=	daily weekly
 
 .include <bsd.subdir.mk>
