@@ -1,12 +1,10 @@
 #	$Id$
 
-BINDIR= /etc/periodic/${.CURDIR:T}
-BINOWN=	 root
-BINGRP=	 wheel
+BINDIR=	/etc/periodic/${.CURDIR:T}
+BINOWN=	root
+BINGRP=	wheel
+NOOBJ=
 
-all depend etc lint:
-
-install:
-	cd ${.CURDIR}; \
-	    ${INSTALL} -c -o ${BINOWN} -g ${BINGRP} -m 755 ${BIN} \
-		${DESTDIR}/${BINDIR} 
+beforeinstall:
+	${INSTALL} -c -o ${BINOWN} -g ${BINGRP} -m 755 ${BIN} \
+	    ${DESTDIR}${BINDIR} 
