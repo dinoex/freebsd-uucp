@@ -3,6 +3,7 @@
 
 BINDIR=		$(sbindir)
 BINOWN=		$(owner)
+BINGRP=         $(group)
 BINMODE=        4550
 
 PROG=		uuxqt
