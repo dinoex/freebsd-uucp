@@ -1,6 +1,7 @@
 # $FreeBSD$
 
-BINDIR=	/etc/periodic/${.CURDIR:T}
+PREFIX?=/usr/local
+BINDIR=	${PREFIX}/etc/periodic/${.CURDIR:T}
 NOOBJ=
 
 beforeinstall:
