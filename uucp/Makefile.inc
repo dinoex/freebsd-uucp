@@ -23,7 +23,7 @@ group=          uucp
 bindir=		${PREFIX}/bin
 sbindir=        ${PREFIX}/sbin
 libxdir=        ${PREFIX}/libexec/uucp
-MANDIR=		${PREFIX}/man
+MANDIR=		${PREFIX}/man/man
 INFODIR=	${PREFIX}/info
 
 # The directory to look in for new style configuration files (when
