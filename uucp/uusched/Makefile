@@ -1,19 +1,14 @@
 # Makefile for uusched
-# $FreeBSD: src/gnu/libexec/uucp/uusched/Makefile,v 1.12 1999/08/27 23:34:01 peter Exp $
+# $FreeBSD: src/gnu/libexec/uucp/uusched/Makefile,v 1.13 2001/03/27 14:58:34 ru Exp $
+
+SCRIPTS=	uusched
+MAN=		uusched.8
+CLEANFILES+=	$(SCRIPTS)
 
 BINDIR=		$(bindir)
-CLEANFILES+=	$(ONESHPROG)
-ONESHPROG=	uusched
-MAN=		uusched.8
 
-all: $(ONESHPROG)
-
-$(ONESHPROG): $(ONESHPROG).in Makefile
+uusched: uusched.in
 	sed -e "s|@SBINDIR@|$(libxdir)|g" \
-		$(.ALLSRC:N*Makefile) > $(.TARGET)
-
-beforeinstall:
-	${INSTALL} -c -o $(BINOWN) -g $(BINGRP) -m $(BINMODE) \
-		$(ONESHPROG) $(DESTDIR)$(BINDIR)/$(ONESHPROG)
+		$(.ALLSRC) > $(.TARGET)
 
 .include <bsd.prog.mk>
