@@ -13,7 +13,7 @@ SRCS = access.c addbas.c app3.c app4.c basnam.c bytfre.c corrup.c \
 	ufopen.c ultspl.c unknwn.c uuto.c walk.c wldcrd.c work.c \
 	xqtfil.c xqtsub.c  ftw.c
 CFLAGS+=	-I$(.CURDIR)/../common_sources \
-		-DOWNER=\"$(owner)\" -DSBINDIR=\"$(sbindir)\"
+		-DOWNER=\"$(owner)\" -DSBINDIR=\"$(libxdir)\"
 
 NOMAN=		noman
 NOPROFILE=	noprofile

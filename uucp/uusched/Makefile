@@ -8,7 +8,7 @@ ONESHPROG=	uusched
 all: $(ONESHPROG)
 
 $(ONESHPROG): $(ONESHPROG).in Makefile
-	sed -e "s|@BINDIR@|$(bindir)|g" -e "s|@SBINDIR@|$(sbindir)|g" \
+	sed -e "s|@SBINDIR@|$(libxdir)|g" \
 		$(.ALLSRC:N*Makefile) > $(.TARGET)
 
 beforeinstall:

@@ -8,7 +8,7 @@ ONESHPROG=	uuto
 all: $(ONESHPROG)
 
 $(ONESHPROG): $(ONESHPROG).in Makefile
-	sed -e "s|@BINDIR@|$(bindir)|g" -e "s|@SBINDIR@|$(sbindir)|g" \
+	sed -e "s|@BINDIR@|$(bindir)|g" \
 		$(.ALLSRC:N*Makefile) > $(.TARGET)
 
 beforeinstall:
