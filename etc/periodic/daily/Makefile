@@ -1,4 +1,4 @@
-#	$Id$
+# $FreeBSD$
 
 BIN=    100.clean-disks \
 	110.clean-tmps \

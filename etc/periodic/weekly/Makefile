@@ -1,4 +1,4 @@
-#	$Id$
+# $FreeBSD$
 
 BIN=	120.clean-kvmdb \
 	300.uucp \

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id$
+# $FreeBSD$
 #
 # Local cleanup of UUCP files.  This is for backwards compatibility,
 # /etc/uuclean.daily doesn't exist by default.
