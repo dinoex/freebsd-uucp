@@ -1,7 +1,7 @@
 /* uulog.c
    Display the UUCP log file.
 
-   Copyright (C) 1991, 1992, 1993, 1994 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1994, 1995 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,10 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
    The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, Building 200, 1 Kendall Square, Cambridge, MA 02139.
+   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
    */
 
 #include "uucp.h"
@@ -186,7 +186,7 @@ main (argc, argv)
 
 	case 'v':
 	  /* Print version and exit.  */
-	  printf ("%s: Taylor UUCP %s, copyright (C) 1991, 1992, 1993, 1994 Ian Lance Taylor\n",
+	  printf ("%s: Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995 Ian Lance Taylor\n",
 		  zProgram, VERSION);
 	  exit (EXIT_SUCCESS);
 	  /*NOTREACHED*/
@@ -350,7 +350,7 @@ main (argc, argv)
 	      zluser = znext;
 	      cluser = strcspn (znext, " \t");
 #endif
-
+      
 	      /* Skip the first field.  */
 	      znext += strcspn (znext, " \t");
 	      znext += strspn (znext, " \t");
@@ -386,7 +386,7 @@ main (argc, argv)
 	      clsys = strcspn (znext, "!");
 	      znext += clsys + 1;
 	      zluser = znext;
-	      clsys = strcspn (znext, " \t");
+	      cluser = strcspn (znext, " \t");
 #endif
 	    }
 
@@ -463,7 +463,7 @@ ulusage ()
 static void
 ulhelp ()
 {
-  printf ("Taylor UUCP %s, copyright (C) 1991, 1992, 1993, 1994 Ian Lance Taylor\n",
+  printf ("Taylor UUCP %s, copyright (C) 1991, 92, 93, 94, 1995 Ian Lance Taylor\n",
 	   VERSION);
 #if HAVE_HDB_LOGGING
   printf ("Usage: %s [-n #] [-sf system] [-u user] [-xDS] [-I file] [-X debug]\n",

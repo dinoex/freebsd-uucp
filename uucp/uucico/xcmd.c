@@ -1,7 +1,7 @@
 /* xcmd.c
    Routines to handle work requests.
 
-   Copyright (C) 1991, 1992, 1993 Ian Lance Taylor
+   Copyright (C) 1991, 1992, 1993, 1995 Ian Lance Taylor
 
    This file is part of the Taylor UUCP package.
 
@@ -17,10 +17,10 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
    The author of the program may be contacted at ian@airs.com or
-   c/o Cygnus Support, Building 200, 1 Kendall Square, Cambridge, MA 02139.
+   c/o Cygnus Support, 48 Grove Street, Somerville, MA 02144.
    */
 
 #include "uucp.h"
@@ -97,8 +97,8 @@ flocal_xcmd_request (qtrans, qdaemon)
 					qtrans->iremote);
   ubuffree (zsend);
 
-  if (! fret)
-    utransfree (qtrans);
+  /* If fret is FALSE, we should free qtrans here, but see the comment
+     at the end of flocal_rec_send_request.  */
 
   return fret;
 }
@@ -330,7 +330,7 @@ fremote_xcmd_init (qdaemon, qcmd, iremote)
 
       /* Copy the file either to the final destination or to the
 	 spool directory.  */
-      if (! fcopy_file (zfile, zto, qdestsys == NULL, fmkdirs))
+      if (! fcopy_file (zfile, zto, qdestsys == NULL, fmkdirs, FALSE))
 	{
 	  ubuffree (zto);
 	  break;
