@@ -3,7 +3,7 @@
 
 BINDIR=		$(sbindir)
 BINOWN=		$(owner)
-BINMODE=	4555
+BINMODE=        4550
 
 PROG=		uucico
 SRCS=		uucico.c trans.c send.c rec.c xcmd.c prot.c protg.c protf.c \
