@@ -3,6 +3,7 @@
 
 PROG=	uucpd
 MAN=	uucpd.8
+MAN8=	uucpd.8
 BINDIR=	${PREFIX}/libexec
 MANDIR=	${PREFIX}/man/man
 LDADD=  -lcrypt -lutil
