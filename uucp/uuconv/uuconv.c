@@ -26,7 +26,7 @@
 #include "uucnfi.h"
 
 #if USE_RCS_ID
-const char uuconv_rcsid[] = "$FreeBSD$";
+const char uuconv_rcsid[] = "$FreeBSD: src/gnu/libexec/uucp/uuconv/uuconv.c,v 1.7 1999/08/27 23:33:54 peter Exp $";
 #endif
 
 #include "getopt.h"
@@ -684,7 +684,7 @@ uvwrite_chat_script (e, pzarg)
     {
       if ((*pz)[0] != '-' && pz != pzarg)
 	fprintf (e, " ");
-      fprintf (e, *pz);
+      fprintf (e, "%s", *pz);
     }
 }
 
