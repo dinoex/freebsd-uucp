@@ -3,8 +3,7 @@
 
 BINDIR=		$(bindir)
 BINOWN=		$(owner)
-BINGRP=         $(group)
-BINMODE=        4550
+BINMODE=        4555
 
 PROG=		uux
 SRCS=		uux.c util.c log.c copy.c
