@@ -5,7 +5,8 @@ BINDIR=		$(bindir)
 
 PROG=	uusched
 SRCS=
-NOMAN=
+NOMAN=	yes
+NOOBJS=	yes
 STRIP=
 
 uusched:	uusched.in
