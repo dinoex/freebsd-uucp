@@ -457,7 +457,7 @@ int readline(char start[], int num, int passw)
 
 void dologout(void)
 {
-	union wait status;
+	int status;
 	pid_t pid;
 	char line[32];
 
