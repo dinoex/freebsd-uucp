@@ -186,7 +186,7 @@ main (argc, argv)
   opterr = 0;
   while (1)
     {
-      while (getopt_long (argc, argv, "+a:bcCg:I:jlnprs:Wvx:z",
+      while (getopt_long (argc, argv, "+a::bcCg:I:jlnprs:Wvx:z",
 			  asXlongopts, (int *) NULL) != EOF)
 	;
       if (optind >= argc || strcmp (argv[optind], "-") != 0)
