@@ -3,8 +3,7 @@
 
 BINDIR=		$(sbindir)
 BINOWN=		$(owner)
-BINGRP=         $(group)
-BINMODE=        4550
+BINMODE=        4555
 
 PROG=		uucico
 SRCS=		uucico.c trans.c send.c rec.c xcmd.c prot.c protg.c protf.c \
