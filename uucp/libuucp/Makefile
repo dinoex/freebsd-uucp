@@ -2,8 +2,9 @@
 # $Id$
 
 LIB=		uucp
-SRCS=		buffer.c crc.c debug.c escape.c getopt.c getop1.c parse.c \
-		spool.c status.c xfree.c xmall.c xreall.c getlin.c
+SRCS = buffer.c crc.c debug.c escape.c getopt.c getop1.c parse.c spool.c \
+	status.c xfree.c xmall.c xreall.c \
+	 getlin.c
 CFLAGS+=	-I$(.CURDIR)/../common_sources
 
 NOMAN=		noman

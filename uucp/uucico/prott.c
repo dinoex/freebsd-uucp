@@ -20,7 +20,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    The author of the program may be contacted at ian@airs.com or
-   c/o Infinity Development Systems, P.O. Box 520, Waltham, MA 02254.
+   c/o Cygnus Support, Building 200, 1 Kendall Square, Cambridge, MA 02139.
    */
 
 #include "uucp.h"
@@ -133,7 +133,8 @@ ftsendcmd (qdaemon, z, ilocal, iremote)
 
   zalc = zbufalc (csend);
   memcpy (zalc, z, clen);
-  bzero (zalc + clen, csend - clen);
+  if (csend > clen)
+    bzero (zalc + clen, csend - clen);
 
   fret = fsend_data (qdaemon->qconn, zalc, csend, TRUE);
   ubuffree (zalc);

@@ -12,7 +12,7 @@ SRCS=		uucico.c trans.c send.c rec.c xcmd.c prot.c protg.c protf.c \
 LDADD+=		$(LIBUNIX) $(LIBUUCONF) $(LIBUUCP)
 DPADD+=		$(LIBUNIX) $(LIBUUCONF) $(LIBUUCP)
 CFLAGS+=	-I$(.CURDIR)/../common_sources\
-		-DVERSION=\"$(VERSION)\"
+		-DVERSION=\"$(VERSION)\" -DOWNER=\"$(owner)\"
 
 MAN8=		uucico.8
 

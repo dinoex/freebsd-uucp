@@ -10,7 +10,7 @@ SRCS=		uuxqt.c util.c log.c copy.c
 LDADD+=		$(LIBUNIX) $(LIBUUCONF) $(LIBUUCP)
 DPADD+=		$(LIBUNIX) $(LIBUUCONF) $(LIBUUCP)
 CFLAGS+=	-I$(.CURDIR)/../common_sources\
-		-DVERSION=\"$(VERSION)\"
+		-DVERSION=\"$(VERSION)\" -DOWNER=\"$(owner)\"
 
 MAN8=		uuxqt.8
 
