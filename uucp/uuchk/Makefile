@@ -3,6 +3,7 @@
 
 BINDIR=		$(sbindir)
 BINOWN=		$(owner)
+BINMODE=        550
 
 PROG=		uuchk
 SRCS=		uuchk.c
