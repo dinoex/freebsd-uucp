@@ -18,5 +18,10 @@ CFLAGS+=	-I$(.CURDIR)/../common_sources\
 MAN=		uucico.8
 MAN8=		uucico.8
 
+.if defined(WITH_ENCRYPTED_PASSWORDS)
+LDADD+=       -lcrypt
+DPADD+=       ${LIBCRYPT}
+.endif
+
 .include <bsd.prog.mk>
 .PATH: $(.CURDIR)/../common_sources
