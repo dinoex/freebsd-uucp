@@ -173,6 +173,7 @@ void badlogin(char *name)
 	syslog(LOG_AUTHPRIV|LOG_NOTICE,
 	    "LOGIN FAILURE FROM %s, %s", remotehost, name);
 
+	sleep(3);
 	fprintf(stderr, "Login incorrect.\n");
 	exit(1);
 }
@@ -208,6 +209,8 @@ void doit(struct sockaddr *sinp)
 
 	/* pw might get changed by auth_pam */
 	pw = getpwnam(user);
+	if (pw == NULL)
+		badlogin(user);
 
 #ifdef USE_PAM
 	/*
