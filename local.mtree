@@ -1,0 +1,19 @@
+# .
+/set type=dir uid=0 gid=0 mode=0755
+.
+    etc
+        periodic
+            daily
+            ..
+            weekly
+            ..
+        ..
+        uucp            uid=66 gid=66 mode=0770
+        ..
+    ..	
+    libexec
+        uucp
+        ..
+    ..
+    info
+    ..
