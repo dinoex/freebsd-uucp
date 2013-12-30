@@ -16,7 +16,7 @@ LIBUUCP=	$(.OBJDIR)/../libuucp/libuucp.a
 LIBUUCP=	$(.CURDIR)/../libuucp/libuucp.a
 .endif
 
-VERSION=        1.07
+VERSION=        1.07.4
 PREFIX?=	/usr/local
 uucpowner=	uucp
 uucpgroup=	uucp
