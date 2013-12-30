@@ -22,20 +22,6 @@ clean:	uucp uucpd etc
 		uucp/common_sources/stamp-h \
 		uucp/common_sources/stamp-h1
 
-extract: etc uucp uucpd
-
-etc:
-	cvs -d `pwd`/cvs get etc
-
-uucp:
-	cvs -d `pwd`/cvs get uucp
-
-uucpd:
-	cvs -d `pwd`/cvs get uucpd
-
-distclean:
-	rm -rf uucp uucpd etc
-
 configure:
 	cd uucp/common_sources && sh configure ${CONFIGURE_ARGS}
 
