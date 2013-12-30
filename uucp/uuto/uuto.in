@@ -55,4 +55,4 @@ case $# in
   *) ;;
 esac
 
-exec @BINDIR@/uucp -t -R -c $*
+exec @BINDIR@/uucp -t -R -c "$@"
