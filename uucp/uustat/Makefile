@@ -11,7 +11,7 @@ SRCS=		uustat.c util.c log.c copy.c
 LDADD+=		$(LIBUNIX) $(LIBUUCONF) $(LIBUUCP)
 DPADD+=		$(LIBUNIX) $(LIBUUCONF) $(LIBUUCP)
 CFLAGS+=	-I$(.CURDIR)/../common_sources\
-		-DOWNER=\"$(owner)\"\
+		-DOWNER=\"$(uucpowner)\"\
 		-DVERSION=\"$(VERSION)\"
 
 .include <bsd.prog.mk>
