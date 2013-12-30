@@ -1,0 +1,13 @@
+#
+# $Id$
+#
+# PAM configuration for the "uucp" service
+#
+auth	sufficient	pam_skey.so
+auth	sufficient	pam_ssh.so			try_first_pass
+auth	requisite	pam_cleartext_pass_ok.so
+auth	required	pam_unix.so			try_first_pass
+account	required	pam_unix.so
+password required	pam_permit.so
+session	required	pam_permit.so
+
