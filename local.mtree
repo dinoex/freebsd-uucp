@@ -8,7 +8,7 @@
             weekly
             ..
         ..
-        uucp            uid=66 gid=66 mode=0770
+        uucp            uid=66 gid=66 mode=0750
         ..
     ..	
     libexec
