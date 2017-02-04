@@ -6,8 +6,8 @@ all:	uucp uucpd etc
 	(cd etc && ${MAKE} all)
 
 install: uucp uucpd etc
-	mtree -deU -f uucp.mtree -p ${DESTDIR}/var
-	mtree -deU -f local.mtree -p ${DESTDIR}${PREFIX}
+	mtree -deU -f etc/mtree/uucp-var.mtree -p ${DESTDIR}/var
+	mtree -deU -f etc/mtree/uucp-local.mtree -p ${DESTDIR}${PREFIX}
 	(cd uucp && ${MAKE} install)
 	(cd uucpd && ${MAKE} install)
 	(cd etc && ${MAKE} install)
